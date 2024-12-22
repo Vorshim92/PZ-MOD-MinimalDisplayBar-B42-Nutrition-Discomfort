@@ -1,0 +1,6 @@
+version=1
+id=3388844542
+title=[B41/B42] Minimal Display Bars + Nutritions + Discomfort
+description=Added to the original mod Lipids, Proteins and Carbohydrates and Discomfort Level for 42.
+tags=Build 41;Build 42;Framework;Interface
+visibility=public
