@@ -1634,6 +1634,40 @@ local function toggleShowImage(bar)
     --bar:resetToConfigTable() 
 end
 
+local function loadFromPreset(locationIndex)
+    local fileContents1 = MinimalDisplayBars.io_persistence.load("MDB_Preset.lua", MinimalDisplayBars.MOD_ID)
+    MinimalDisplayBars.io_persistence.store(
+        MinimalDisplayBars.configFileLocations[locationIndex], 
+        MinimalDisplayBars.MOD_ID, 
+        fileContents1)
+    return fileContents1
+end
+
+local function toggleLoadPreset(bar)
+    getPlayer():Say("Load MDB_Preset.lua")
+    -- Recreates the display bars with the new preset.
+    if not bar then return end
+
+    MinimalDisplayBars.configTables[bar.coopNum] = 
+            MinimalDisplayBars.io_persistence.load(
+                "MDB_Preset.lua", 
+                MinimalDisplayBars.MOD_ID)
+    
+    -- reset
+    if bar then 
+        bar:resetToConfigTable() 
+        MinimalDisplayBars.createMoveBarsTogetherPanel(bar.playerIndex)
+    end
+    
+    -- store options
+    MinimalDisplayBars.io_persistence.store(
+        bar.fileSaveLocation, 
+        MinimalDisplayBars.MOD_ID, 
+        MinimalDisplayBars.configTables[bar.coopNum])
+    
+    return
+end
+
 -- ContextMenu
 local contextMenu = nil
 MinimalDisplayBars.displayBarPropertiesPanel = nil
@@ -2300,6 +2334,20 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                 return
             end
         )
+
+        -- Toggle Load Preset
+        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Load_Preset")
+        contextMenu:addOption(
+            str,
+            generic_bar,
+            function(generic_bar)
+            
+                if not generic_bar then return end
+                
+                toggleLoadPreset(generic_bar)
+                return
+            end
+        )
         
     else
     
@@ -2501,9 +2549,9 @@ local function createUiFor(playerIndex, isoPlayer)
     
     -- Make sure this is a local player only.
     if not isoPlayer:isLocalPlayer() then return end
-    
+
     frameRate = getPerformance():getFramerate()
-    tickRate = 60 + frameRate
+    tickRate = 60 + frameRate  
     
     -- Split-screen support
     local xOffset = getPlayerScreenLeft(playerIndex)
