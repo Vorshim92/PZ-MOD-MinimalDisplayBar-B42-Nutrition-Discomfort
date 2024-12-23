@@ -29,14 +29,14 @@ ContextMenu_IT = {
     ContextMenu_MinimalDisplayBars_Hide = "Nascondere",
     
     -- Display Names 
-    ContextMenu_MinimalDisplayBars_menu = "Menu'",
+    ContextMenu_MinimalDisplayBars_menu = "Menù",
     ContextMenu_MinimalDisplayBars_hp = "Salute",
     ContextMenu_MinimalDisplayBars_hunger = "Appetito",
     ContextMenu_MinimalDisplayBars_thirst = "Sete",
     ContextMenu_MinimalDisplayBars_endurance = "Resistenza",
     ContextMenu_MinimalDisplayBars_fatigue = "Fatica",
     ContextMenu_MinimalDisplayBars_boredomlevel = "Livello di Noia",
-    ContextMenu_MinimalDisplayBars_unhappynesslevel = "Livello di Infelicita'",
+    ContextMenu_MinimalDisplayBars_unhappynesslevel = "Livello di Infelicità",
     ContextMenu_MinimalDisplayBars_temperature = "Temperatura",
     ContextMenu_MinimalDisplayBars_calorie = "Caloria",
 	ContextMenu_MinimalDisplayBars_carbohydrates = "Carboidrati",
