@@ -2,10 +2,9 @@ ContextMenu_RU = {
     
     
     ----- ContextMenu (Russian) -----
-    /* Translation Improved by star */
     
     ----- Title for Display Bars when Right-Clicked -----
-    ContextMenu_MinimalDisplayBars_Title = "Minimal Display Bars", /* The name of the mod should be unchanged. */
+    ContextMenu_MinimalDisplayBars_Title = "Minimal Display Bars",
     
     -- Menu Options
     ContextMenu_MinimalDisplayBars_Reset = "Сброс к настройкам по умолчанию",
@@ -40,11 +39,10 @@ ContextMenu_RU = {
     ContextMenu_MinimalDisplayBars_unhappynesslevel = "Уровень грусти",
     ContextMenu_MinimalDisplayBars_temperature = "Температура",
     ContextMenu_MinimalDisplayBars_calorie = "Калории",
-    
-    /* ContextMenu_MinimalDisplayBars_stress = "Тревога", -- getStress() */
-    /* ContextMenu_MinimalDisplayBars_catchAColdStrength = "Простуда", -- getCatchACold() */
-    /* ContextMenu_MinimalDisplayBars_coldStrength = "Слабость иммунитета", -- getColdStrength() */
-    /* ContextMenu_MinimalDisplayBars_poison = "Яд", -- getPoisonLevel() */
+	ContextMenu_MinimalDisplayBars_carbohydrates = "Углеводы",
+	ContextMenu_MinimalDisplayBars_proteins = "Белки",
+	ContextMenu_MinimalDisplayBars_lipids = "Липиды",
+    ContextMenu_MinimalDisplayBars_discomfortlevel = "Дискомфорт",
     
     -- UI
     ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "Удерживая левую кнопку мыши, перетащите для перемещения.",
