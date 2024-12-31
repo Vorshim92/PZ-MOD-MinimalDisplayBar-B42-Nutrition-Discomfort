@@ -1085,7 +1085,7 @@ local function calcHunger(value)
 end
 local function getHunger(isoPlayer, useRealValue) 
     if useRealValue then
-        return isoPlayer:getStats():getThirst()
+        return isoPlayer:getStats():getHunger()
     else
         if isoPlayer:isDead() then
             return -1
@@ -2884,8 +2884,8 @@ local function createUiFor(playerIndex, isoPlayer)
             -- Override settings
             MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["imageName"] = DEFAULT_SETTINGS[bar.idName]["imageName"]
             bar.imageName = DEFAULT_SETTINGS[bar.idName]["imageName"]
-            MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["imageSize"] = DEFAULT_SETTINGS[bar.idName]["imageSize"]
-            bar.imageSize = DEFAULT_SETTINGS[bar.idName]["imageSize"]
+            -- MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["imageSize"] = DEFAULT_SETTINGS[bar.idName]["imageSize"]
+            -- bar.imageSize = DEFAULT_SETTINGS[bar.idName]["imageSize"]
             MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["imageShowBack"] = DEFAULT_SETTINGS[bar.idName]["imageShowBack"]
             bar.imageShowBack = DEFAULT_SETTINGS[bar.idName]["imageShowBack"]
             
