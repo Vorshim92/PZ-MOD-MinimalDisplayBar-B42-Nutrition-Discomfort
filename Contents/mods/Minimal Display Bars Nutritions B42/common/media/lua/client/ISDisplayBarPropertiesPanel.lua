@@ -432,6 +432,7 @@ function ISDisplayBarPropertiesPanel:onOptionMouseDown(button, x, y)
         
         MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["width"] = self.displayBar:getWidth()
         MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["height"] = self.displayBar:getHeight()
+        MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["imageSize"] = self.displayBar.imageSize
         
         MinimalDisplayBars.io_persistence.store(
             self.displayBar.fileSaveLocation, 
@@ -442,19 +443,21 @@ function ISDisplayBarPropertiesPanel:onOptionMouseDown(button, x, y)
         
         self:close()
         
-    elseif button.internal == "APPLY" then
-        if self.onApply then 
-            self.onApply() end
+    -- elseif button.internal == "APPLY" then
+    --     if self.onApply then 
+    --         self.onApply() end
         
-        MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["width"] = self.displayBar:getWidth()
-        MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["height"] = self.displayBar:getHeight()
+    --     MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["width"] = self.displayBar:getWidth()
+    --     MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["height"] = self.displayBar:getHeight()
+    --     MinimalDisplayBars.configTables[self.displayBar.coopNum][self.displayBar.idName]["imageSize"] = self.displayBar.imageSize
+
         
-        MinimalDisplayBars.io_persistence.store(
-            self.displayBar.fileSaveLocation, 
-            MinimalDisplayBars.MOD_ID, 
-            MinimalDisplayBars.configTables[self.displayBar.coopNum])
+    --     MinimalDisplayBars.io_persistence.store(
+    --         self.displayBar.fileSaveLocation, 
+    --         MinimalDisplayBars.MOD_ID, 
+    --         MinimalDisplayBars.configTables[self.displayBar.coopNum])
         
-        MinimalDisplayBars.createMoveBarsTogetherPanel(self.displayBar.playerIndex)
+    --     MinimalDisplayBars.createMoveBarsTogetherPanel(self.displayBar.playerIndex)
         
     elseif button.internal == "RESET" then
         if self.onReset then 
