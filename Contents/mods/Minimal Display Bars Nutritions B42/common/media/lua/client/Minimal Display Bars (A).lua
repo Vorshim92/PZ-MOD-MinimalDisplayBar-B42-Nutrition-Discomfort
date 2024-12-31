@@ -9,6 +9,16 @@
 --
 --============================================================
 
+-- temp fix 
+local original_ISDrinkFluidAction_complete = ISDrinkFluidAction.complete
+function ISDrinkFluidAction:complete()
+    original_ISDrinkFluidAction_complete(self)
+    if self.character:getStats():getThirst() < 0 then
+        self.character:getStats():setThirst(0);
+    end
+	return true;
+end
+
 MinimalDisplayBars = {}
 
 MinimalDisplayBars.MOD_ID = "MinimalDisplayBarsNutritions"
