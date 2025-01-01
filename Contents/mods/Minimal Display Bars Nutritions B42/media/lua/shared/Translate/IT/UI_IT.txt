@@ -1,0 +1,10 @@
+UI_IT = {
+    UI_LoadPreset_Info = "<H1> COME CARICARE UN PRESET PERSONALIZZATO PER MDB! <LINE> <TEXT> " ..
+                        "<IMAGECENTRE:media/ui/mdbPresetFolder.png> <LINE> " ..
+                        "<CENTRE> <SIZE:large> Segui questi semplici passaggi per caricare il tuo preset personalizzato: <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> 1. Trova il file **CONFIG.LUA** che vuoi usare come preset. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> 2. Rinomina il file in **MDB_PRESET.LUA**. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> 3. Metti il file nella cartella: <LINE> **%UserProfile%/Zomboid/Lua**. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> 4. Premi il pulsante **SÌ** nel gioco per confermare e applicare il tuo preset. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:large> Divertiti a personalizzare le tue Minimal Display Bars! <LINE><LINE> ",
+}

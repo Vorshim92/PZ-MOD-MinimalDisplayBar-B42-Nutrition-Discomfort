@@ -1580,7 +1580,10 @@ local function toggleShowImage(bar)
     --bar:resetToConfigTable() 
 end
 
-local function toggleLoadPreset(bar)
+local function onConfirmLoadPreset(target, button, param1, param2)
+
+    if button.internal ~= "YES" then return end
+    local bar = param1
     if not bar then return end
     
     getPlayer():Say("Loading MDB_Preset.lua")
@@ -1618,10 +1621,52 @@ local function toggleLoadPreset(bar)
         end
     end
     
-    -- 7) Ricreiamo il pannello di spostamento multiplo, se lo usi
     MinimalDisplayBars.createMoveBarsTogetherPanel(bar.playerIndex)
-    
+    local barHP = MinimalDisplayBars.displayBars[bar.playerIndex]["hp"]
+            
+    -- Make sure bars are toggled correctly
+        -- Make sure bars are all toggled correctly when new bars are added.
+    for _, minibar in pairs(MinimalDisplayBars.displayBars[bar.playerIndex]) do
+        if minibar then 
+            if barHP.moveWithMouse ~= minibar.moveWithMouse then
+                toggleMovable(minibar) end
+            if barHP.resizeWithMouse ~= minibar.resizeWithMouse then
+                toggleResizeable(minibar) end
+            if barHP.alwaysBringToTop ~= minibar.alwaysBringToTop then
+                toggleAlwaysBringToTop(minibar) end
+            if barHP.showMoodletThresholdLines ~= minibar.showMoodletThresholdLines then
+                toggleMoodletThresholdLines(minibar) end
+            if barHP.isCompact ~= minibar.isCompact then
+                toggleCompact(minibar) end
+            if barHP.moveBarsTogether ~= minibar.moveBarsTogether then
+                toggleMoveBarsTogether(minibar) end
+            if barHP.showImage ~= minibar.showImage then
+                toggleShowImage(minibar) end
+        end
+    end
+
     getPlayer():Say("Preset loaded successfully!")
+end
+
+local function toggleModalLoadPreset(generic_bar)
+    -- local windowSize = 600+(getCore():getOptionFontSizeReal()*100);
+    local texture = getTexture("media/ui/mdbPresetFolder.png")
+    local windowSize = 600+(getCore():getOptionFontSizeReal()*100);
+        if texture then
+            windowSize = texture:getWidth()
+            windowSize = windowSize + (getCore():getOptionFontSizeReal()*100)
+        end
+
+    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, getText("UI_LoadPreset_Info"), true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
+    animPopup:initialise();
+    animPopup.backgroundColor = {r=0, g=0, b=0, a=0.9};
+    animPopup.alwaysOnTop = true;
+    animPopup.chatText:paginate();
+    animPopup:setHeightToContents()
+    animPopup:ignoreHeightChange()
+    animPopup:setY(getCore():getScreenHeight()/2-(animPopup:getHeight()/2));
+    animPopup:setVisible(true);
+    animPopup:addToUIManager();
 end
 
 -- ContextMenu
@@ -2300,7 +2345,7 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             
                 if not generic_bar then return end
                 
-                toggleLoadPreset(generic_bar)
+                toggleModalLoadPreset(generic_bar)
                 return
             end
         )
