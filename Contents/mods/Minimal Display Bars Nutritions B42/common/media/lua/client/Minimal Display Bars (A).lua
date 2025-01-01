@@ -1644,38 +1644,47 @@ local function toggleShowImage(bar)
     --bar:resetToConfigTable() 
 end
 
-local function loadFromPreset(locationIndex)
-    local fileContents1 = MinimalDisplayBars.io_persistence.load("MDB_Preset.lua", MinimalDisplayBars.MOD_ID)
-    MinimalDisplayBars.io_persistence.store(
-        MinimalDisplayBars.configFileLocations[locationIndex], 
-        MinimalDisplayBars.MOD_ID, 
-        fileContents1)
-    return fileContents1
-end
-
 local function toggleLoadPreset(bar)
-    getPlayer():Say("Load MDB_Preset.lua")
-    -- Recreates the display bars with the new preset.
     if not bar then return end
-
-    MinimalDisplayBars.configTables[bar.coopNum] = 
-            MinimalDisplayBars.io_persistence.load(
-                "MDB_Preset.lua", 
-                MinimalDisplayBars.MOD_ID)
     
-    -- reset
-    if bar then 
-        bar:resetToConfigTable() 
-        MinimalDisplayBars.createMoveBarsTogetherPanel(bar.playerIndex)
+    getPlayer():Say("Loading MDB_Preset.lua")
+    
+    local loadedPreset = MinimalDisplayBars.io_persistence.load(
+        "MDB_Preset.lua",
+        MinimalDisplayBars.MOD_ID
+    )
+    if not loadedPreset then
+        getPlayer():Say("Can't find MDB_Preset.lua!")
+        return
+    end
+
+    local defaultTable = MinimalDisplayBars.io_persistence.load(
+        MinimalDisplayBars.defaultSettingsFileName,
+        MinimalDisplayBars.MOD_ID
+    )
+    
+    loadedPreset = MinimalDisplayBars.deepcopy(loadedPreset)
+
+    MinimalDisplayBars.compare_and_insert(defaultTable, loadedPreset, true)
+
+    MinimalDisplayBars.configTables[bar.coopNum] = loadedPreset
+
+    MinimalDisplayBars.io_persistence.store(
+        bar.fileSaveLocation,
+        MinimalDisplayBars.MOD_ID,
+        MinimalDisplayBars.configTables[bar.coopNum]
+    )
+    
+    local allBars = MinimalDisplayBars.displayBars[bar.playerIndex]
+    for _, someBar in pairs(allBars) do
+        if someBar and someBar.resetToConfigTable then
+            someBar:resetToConfigTable()
+        end
     end
     
-    -- store options
-    MinimalDisplayBars.io_persistence.store(
-        bar.fileSaveLocation, 
-        MinimalDisplayBars.MOD_ID, 
-        MinimalDisplayBars.configTables[bar.coopNum])
+    MinimalDisplayBars.createMoveBarsTogetherPanel(bar.playerIndex)
     
-    return
+    getPlayer():Say("Preset loaded successfully!")
 end
 
 -- ContextMenu

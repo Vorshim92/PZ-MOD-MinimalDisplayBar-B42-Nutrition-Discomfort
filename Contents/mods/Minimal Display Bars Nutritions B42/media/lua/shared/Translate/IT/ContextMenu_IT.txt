@@ -19,6 +19,7 @@ ContextMenu_IT = {
     ContextMenu_MinimalDisplayBars_Toggle_Compact = "Attiva / Disattiva Compatto",
     ContextMenu_MinimalDisplayBars_Toggle_Move_Bars_Together = "Attiva / disattiva sposta barre di visualizzazione insieme",
     ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "Attiva / disattiva le icone della barra di visualizzazione",
+    ContextMenu_MinimalDisplayBars_Toggle_Load_Preset = "Carica Preset",
     
     -- Display Bar Options
     ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "Ripristina barra di visualizzazione",

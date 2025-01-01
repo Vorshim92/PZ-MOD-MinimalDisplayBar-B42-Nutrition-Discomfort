@@ -1580,6 +1580,50 @@ local function toggleShowImage(bar)
     --bar:resetToConfigTable() 
 end
 
+local function toggleLoadPreset(bar)
+    if not bar then return end
+    
+    getPlayer():Say("Loading MDB_Preset.lua")
+    
+    local loadedPreset = MinimalDisplayBars.io_persistence.load(
+        "MDB_Preset.lua",
+        MinimalDisplayBars.MOD_ID
+    )
+    if not loadedPreset then
+        getPlayer():Say("Can't find MDB_Preset.lua!")
+        return
+    end
+
+    local defaultTable = MinimalDisplayBars.io_persistence.load(
+        MinimalDisplayBars.defaultSettingsFileName,
+        MinimalDisplayBars.MOD_ID
+    )
+    
+    loadedPreset = MinimalDisplayBars.deepcopy(loadedPreset)
+
+    MinimalDisplayBars.compare_and_insert(defaultTable, loadedPreset, true)
+
+    MinimalDisplayBars.configTables[bar.coopNum] = loadedPreset
+
+    MinimalDisplayBars.io_persistence.store(
+        bar.fileSaveLocation,
+        MinimalDisplayBars.MOD_ID,
+        MinimalDisplayBars.configTables[bar.coopNum]
+    )
+    
+    local allBars = MinimalDisplayBars.displayBars[bar.playerIndex]
+    for _, someBar in pairs(allBars) do
+        if someBar and someBar.resetToConfigTable then
+            someBar:resetToConfigTable()
+        end
+    end
+    
+    -- 7) Ricreiamo il pannello di spostamento multiplo, se lo usi
+    MinimalDisplayBars.createMoveBarsTogetherPanel(bar.playerIndex)
+    
+    getPlayer():Say("Preset loaded successfully!")
+end
+
 -- ContextMenu
 local contextMenu = nil
 MinimalDisplayBars.displayBarPropertiesPanel = nil
@@ -2243,6 +2287,20 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                     MinimalDisplayBars.MOD_ID, 
                     MinimalDisplayBars.configTables[generic_bar.coopNum])
                 
+                return
+            end
+        )
+
+        -- Toggle Load Preset
+        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Load_Preset")
+        contextMenu:addOption(
+            str,
+            generic_bar,
+            function(generic_bar)
+            
+                if not generic_bar then return end
+                
+                toggleLoadPreset(generic_bar)
                 return
             end
         )

@@ -19,6 +19,7 @@ ContextMenu_EN = {
     ContextMenu_MinimalDisplayBars_Toggle_Compact = "Toggle Compact",
     ContextMenu_MinimalDisplayBars_Toggle_Move_Bars_Together = "Toggle Move Display Bars Together",
     ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "Toggle Display Bar Icons",
+    ContextMenu_MinimalDisplayBars_Toggle_Load_Preset = "Load Preset",
     
     -- Display Bar Options
     ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "Reset Display Bar",
