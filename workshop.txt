@@ -1,18 +1,14 @@
 version=1
 id=3388844542
-title=[B41/B42] Minimal Display Bars + Nutritions + Discomfort
+title=Minimal Display Bars + Nutritions + Discomfort [B41/B42]
 description=Added to the original mod Lipids, Proteins and Carbohydrates and Discomfort Level for 42.
-
 description=
-
 description=I also changed the save system from getModFileWriter to getFileWriter (reader too), so now the save will be stored in the Zomboid/Lua folder of the User directory.
-
 description=It will create "MOD Config Options (MinimalDisplayBarsNutritions)B42.lua" for the 42 and "MOD Config Options (MinimalDisplayBarsNutritions).lua" for B41
-
 description=
-
-description=Workshop ID: 3388844542
-
-description=Mod ID: MinimalDisplayBarsNutritionsB42
+description=Add "Load Preset" option (see screenshot).
+description=Now you can load preset from your friend, just put the config.lua in User/Zomboid/Lua and rename it "MDB_Preset.lua".
+description=
+description=I also add fix for vanilla thirst bugged after drinking. 
 tags=Build 41;Build 42;Framework;Interface
 visibility=public
