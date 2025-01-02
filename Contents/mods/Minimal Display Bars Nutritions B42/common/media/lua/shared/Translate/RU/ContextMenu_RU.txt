@@ -43,6 +43,7 @@ ContextMenu_RU = {
 	ContextMenu_MinimalDisplayBars_proteins = "Белки",
 	ContextMenu_MinimalDisplayBars_lipids = "Липиды",
     ContextMenu_MinimalDisplayBars_discomfortlevel = "Дискомфорт",
+     ContextMenu_MinimalDisplayBars_stress = "Стресс",
     
     -- UI
     ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "Удерживая левую кнопку мыши, перетащите для перемещения.",

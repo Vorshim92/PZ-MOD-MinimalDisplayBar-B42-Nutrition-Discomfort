@@ -331,6 +331,9 @@ function ISGenericMiniDisplayBar:render(...)
             ["boredomlevel"] = function()
                 self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Bored" )) )
             end,
+            ["stress"] = function()
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Stress" )) )
+            end,
             ["unhappynesslevel"] = function()
                 self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Unhappy" )) )
             end,

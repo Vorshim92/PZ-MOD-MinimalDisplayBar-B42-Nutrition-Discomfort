@@ -601,7 +601,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = false,
@@ -626,7 +626,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = false,
@@ -651,7 +651,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -676,7 +676,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -701,7 +701,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -726,7 +726,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -751,7 +751,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -776,7 +776,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -784,8 +784,33 @@ local DEFAULT_SETTINGS = {
         ["imageSize"] = 22,
         ["showImage"] = false,
     },
-    ["discomfortlevel"] = {
+    ["stress"] = {
         ["x"] = 85 + (8 * 6),
+        ["y"] = 30,
+        ["width"] = 8,
+        ["height"] = 150,
+        ["l"] = 2,
+        ["t"] = 3,
+        ["r"] = 2,
+        ["b"] = 3,
+        ["color"] = {red = (200 / 255), 
+                    green = (0 / 255), 
+                    blue = (100 / 255), 
+                    alpha = 0.75},
+        ["isMovable"] = true,
+        ["isResizable"] = false,
+        ["isVisible"] = true,
+        ["isVertical"] = true,
+        ["alwaysBringToTop"] = false,
+        ["showMoodletThresholdLines"] = true,
+        ["isCompact"] = false,
+        ["imageShowBack"] = true,
+        ["imageName"] = "media/ui/Moodle_Icon_Stressed.png",
+        ["imageSize"] = 22,
+        ["showImage"] = false,
+    },
+    ["discomfortlevel"] = {
+        ["x"] = 85 + (8 * 7),
         ["y"] = 30,
         ["width"] = 8,
         ["height"] = 150,
@@ -801,7 +826,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -810,7 +835,7 @@ local DEFAULT_SETTINGS = {
         ["showImage"] = false,
     },
     ["temperature"] = {
-        ["x"] = 85 + (8 * 7),
+        ["x"] = 85 + (8 * 8),
         ["y"] = 30,
         ["width"] = 8,
         ["height"] = 150,
@@ -826,7 +851,7 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = true,
@@ -835,31 +860,6 @@ local DEFAULT_SETTINGS = {
         ["showImage"] = false,
     },
     ["calorie"] = {
-        ["x"] = 85 + (8 * 8),
-        ["y"] = 30,
-        ["width"] = 8,
-        ["height"] = 150,
-        ["l"] = 2,
-        ["t"] = 3,
-        ["r"] = 2,
-        ["b"] = 3,
-        ["color"] = {red = (100 / 255), 
-                    green = (255 / 255), 
-                    blue = (0 / 255), 
-                    alpha = 0.75},
-        ["isMovable"] = true,
-        ["isResizable"] = false,
-        ["isVisible"] = true,
-        ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
-        ["showMoodletThresholdLines"] = true,
-        ["isCompact"] = false,
-        ["imageShowBack"] = false,
-        ["imageName"] = "media/ui/TraitNutritionist.png",
-        ["imageSize"] = 22,
-        ["showImage"] = false,
-    },
-    ["carbohydrates"] = {
         ["x"] = 85 + (8 * 9),
         ["y"] = 30,
         ["width"] = 8,
@@ -876,15 +876,15 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = false,
-        ["imageName"] = "media/ui/SpagettiRaw.png",
+        ["imageName"] = "media/ui/TraitNutritionist.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
     },
-    ["proteins"] = {
+    ["carbohydrates"] = {
         ["x"] = 85 + (8 * 10),
         ["y"] = 30,
         ["width"] = 8,
@@ -901,15 +901,15 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = false,
-        ["imageName"] = "media/ui/Proteins.png",
+        ["imageName"] = "media/ui/SpagettiRaw.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
     },
-    ["lipids"] = {
+    ["proteins"] = {
         ["x"] = 85 + (8 * 11),
         ["y"] = 30,
         ["width"] = 8,
@@ -926,7 +926,32 @@ local DEFAULT_SETTINGS = {
         ["isResizable"] = false,
         ["isVisible"] = true,
         ["isVertical"] = true,
-        ["alwaysBringToTop"] = true,
+        ["alwaysBringToTop"] = false,
+        ["showMoodletThresholdLines"] = true,
+        ["isCompact"] = false,
+        ["imageShowBack"] = false,
+        ["imageName"] = "media/ui/Proteins.png",
+        ["imageSize"] = 22,
+        ["showImage"] = false,
+    },
+    ["lipids"] = {
+        ["x"] = 85 + (8 * 12),
+        ["y"] = 30,
+        ["width"] = 8,
+        ["height"] = 150,
+        ["l"] = 2,
+        ["t"] = 3,
+        ["r"] = 2,
+        ["b"] = 3,
+        ["color"] = {red = (100 / 255), 
+                    green = (255 / 255), 
+                    blue = (0 / 255), 
+                    alpha = 0.75},
+        ["isMovable"] = true,
+        ["isResizable"] = false,
+        ["isVisible"] = true,
+        ["isVertical"] = true,
+        ["alwaysBringToTop"] = false,
         ["showMoodletThresholdLines"] = true,
         ["isCompact"] = false,
         ["imageShowBack"] = false,
@@ -1199,12 +1224,35 @@ local function getColorBoredomLevel(isoPlayer, useRealValue)
     return color
 end
 
+-- Stress Functions
+local function calcStress(value)
+    return value
+end
+local function getStress(isoPlayer, useRealValue) 
+    if useRealValue then
+        return isoPlayer:getStats():getStress()
+    else
+        if isoPlayer:isDead() then
+            return -1
+        else
+            return calcStress( isoPlayer:getStats():getStress() )
+        end
+    end
+end
+
+local function getColorStress(isoPlayer) 
+    local color
+    color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
+    return color
+end
+
+
 -- UnhappynessLevel (UnhappinessLevel) Functions
 local function calcUnhappynessLevel(value)
     --print(value)
     return value / 100
 end
-local function getUnhappynessLevel(isoPlayer) 
+local function getUnhappynessLevel(isoPlayer, useRealValue) 
     if useRealValue then
         return isoPlayer:getBodyDamage():getUnhappynessLevel()
     else
@@ -1435,6 +1483,12 @@ local function getMoodletThresholdTables()
             [3] = calcBoredomLevel(75),
             [4] = calcBoredomLevel(90),
         },
+        ["stress"] = {
+            [1] = calcStress(0.25),
+            [2] = calcStress(0.50), 
+            [3] = calcStress(0.75),
+            [4] = calcStress(0.90),
+        },
         ["unhappynesslevel"] = {
             [1] = calcUnhappynessLevel(20), -- 20/100
             [2] = calcUnhappynessLevel(45),
@@ -1595,7 +1649,7 @@ local function toggleAlwaysBringToTop(bar)
         MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["alwaysBringToTop"] = false
     else
         bar.alwaysBringToTop = true
-        MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["alwaysBringToTop"] = true
+        MinimalDisplayBars.configTables[bar.coopNum][bar.idName]["alwaysBringToTop"] = false
     end
 end
 
@@ -2832,36 +2886,50 @@ local function createUiFor(playerIndex, isoPlayer)
         moodletThresholdTables[idName7])
     bar7:initialise()
     bar7:addToUIManager()
-    
-    local idName8 = "unhappynesslevel"
+
+    local idName8 = "stress"
     local bar8 = ISGenericMiniDisplayBar:new(
         idName8, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
-        MinimalDisplayBars.configTables[coopNum], xOffset, yOffset, 
+        MinimalDisplayBars.configTables[coopNum], 
+        xOffset, yOffset, 
         nil, 
-        getUnhappynessLevel,
-        getColorUnhappynessLevel, true,
+        getStress,
+        getColorStress, true,
         moodletThresholdTables[idName8])
     bar8:initialise()
-    bar8:addToUIManager()
-
-    local idName9 = "discomfortlevel"
+    bar8:addToUIManager() 
+    
+    local idName9 = "unhappynesslevel"
     local bar9 = ISGenericMiniDisplayBar:new(
         idName9, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], xOffset, yOffset, 
         nil, 
-        getDiscomfortLevel,
-        getColorDiscomfortLevel, true,
+        getUnhappynessLevel,
+        getColorUnhappynessLevel, true,
         moodletThresholdTables[idName9])
     bar9:initialise()
     bar9:addToUIManager()
-    
-    local idName10 = "temperature"
+
+    local idName10 = "discomfortlevel"
     local bar10 = ISGenericMiniDisplayBar:new(
         idName10, 
+        MinimalDisplayBars.configFileLocations[coopNum], 
+        playerIndex, isoPlayer, coopNum, 
+        MinimalDisplayBars.configTables[coopNum], xOffset, yOffset, 
+        nil, 
+        getDiscomfortLevel,
+        getColorDiscomfortLevel, true,
+        moodletThresholdTables[idName10])
+    bar10:initialise()
+    bar10:addToUIManager()
+    
+    local idName11 = "temperature"
+    local bar11 = ISGenericMiniDisplayBar:new(
+        idName11, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], 
@@ -2869,13 +2937,13 @@ local function createUiFor(playerIndex, isoPlayer)
         nil, 
         getTemperature,
         getColorTemperature, true,
-        moodletThresholdTables[idName10])
-    bar10:initialise()
-    bar10:addToUIManager()
+        moodletThresholdTables[idName11])
+    bar11:initialise()
+    bar11:addToUIManager()
     
-    local idName11 = "calorie"
-    local bar11 = ISGenericMiniDisplayBar:new(
-        idName11, 
+    local idName12 = "calorie"
+    local bar12 = ISGenericMiniDisplayBar:new(
+        idName12, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], 
@@ -2884,12 +2952,12 @@ local function createUiFor(playerIndex, isoPlayer)
         getCalorie,
         getColorCalorie, true,
         nil)
-    bar11:initialise()
-    bar11:addToUIManager()
+    bar12:initialise()
+    bar12:addToUIManager()
     
-    local idName12 = "carbohydrates"
-    local bar12 = ISGenericMiniDisplayBar:new(
-        idName12, 
+    local idName13 = "carbohydrates"
+    local bar13 = ISGenericMiniDisplayBar:new(
+        idName13, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], 
@@ -2898,12 +2966,12 @@ local function createUiFor(playerIndex, isoPlayer)
         getCarbohydrates,
         getColorCarbohydrates, true,
         nil)
-    bar12:initialise()
-    bar12:addToUIManager()
+    bar13:initialise()
+    bar13:addToUIManager()
 
-    local idName13 = "proteins"
-    local bar13 = ISGenericMiniDisplayBar:new(
-        idName13, 
+    local idName14 = "proteins"
+    local bar14 = ISGenericMiniDisplayBar:new(
+        idName14, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], 
@@ -2912,13 +2980,13 @@ local function createUiFor(playerIndex, isoPlayer)
         getProteins,
         getColorProteins, true,
         nil)
-        -- moodletThresholdTables[idName13])
-    bar13:initialise()
-    bar13:addToUIManager()
+        -- moodletThresholdTables[idName14])
+    bar14:initialise()
+    bar14:addToUIManager()
 
-    local idName14 = "lipids"
-    local bar14 = ISGenericMiniDisplayBar:new(
-        idName14, 
+    local idName15 = "lipids"
+    local bar15 = ISGenericMiniDisplayBar:new(
+        idName15, 
         MinimalDisplayBars.configFileLocations[coopNum], 
         playerIndex, isoPlayer, coopNum, 
         MinimalDisplayBars.configTables[coopNum], 
@@ -2927,8 +2995,8 @@ local function createUiFor(playerIndex, isoPlayer)
         getLipids,
         getColorLipids, true,
         nil)
-    bar14:initialise()
-    bar14:addToUIManager()
+    bar15:initialise()
+    bar15:addToUIManager()
     
     
     -- Add all valid display bars to a Global varible to be shared.
@@ -2947,6 +3015,7 @@ local function createUiFor(playerIndex, isoPlayer)
         [idName12] = bar12,
         [idName13] = bar13,
         [idName14] = bar14,
+        [idName15] = bar15,
     }
     
     ------------------------------------------------------------------------------
