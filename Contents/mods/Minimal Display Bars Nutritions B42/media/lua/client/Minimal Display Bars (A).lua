@@ -1649,12 +1649,12 @@ local function onConfirmLoadPreset(target, button, param1, param2)
 end
 
 local function toggleModalLoadPreset(generic_bar)
-    -- local windowSize = 600+(getCore():getOptionFontSizeReal()*100);
+    -- local windowSize = 600+(getCore():getOptionFontSize()*100);
     local texture = getTexture("media/ui/mdbPresetFolder.png")
-    local windowSize = 600+(getCore():getOptionFontSizeReal()*100);
+    local windowSize = 600+(getCore():getOptionFontSize()*100);
         if texture then
             windowSize = texture:getWidth()
-            windowSize = windowSize + (getCore():getOptionFontSizeReal()*100)
+            windowSize = windowSize + (getCore():getOptionFontSize()*100)
         end
 
     local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, getText("UI_LoadPreset_Info"), true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
