@@ -1,10 +1,10 @@
 UI_IT = {
-    UI_LoadPreset_Info = "<H1> COME CARICARE UN PRESET PERSONALIZZATO PER MDB! <LINE> <TEXT> " ..
+    UI_LoadPreset_Info = "<H1> <RGB:1,1,1> COME CARICARE UN PRESET PERSONALIZZATO PER MDB! <LINE> <TEXT> " ..
                         "<IMAGECENTRE:media/ui/mdbPresetFolder.png> <LINE> " ..
-                        "<CENTRE> <SIZE:large> Segui questi semplici passaggi per caricare il tuo preset personalizzato: <LINE><LINE> " ..
-                        "<CENTRE> <SIZE:medium> 1. Trova il file **CONFIG.LUA** che vuoi usare come preset. <LINE><LINE> " ..
-                        "<CENTRE> <SIZE:medium> 2. Rinomina il file in **MDB_PRESET.LUA**. <LINE><LINE> " ..
-                        "<CENTRE> <SIZE:medium> 3. Metti il file nella cartella: <LINE> **%UserProfile%/Zomboid/Lua**. <LINE><LINE> " ..
-                        "<CENTRE> <SIZE:medium> 4. Premi il pulsante **SÌ** nel gioco per confermare e applicare il tuo preset. <LINE><LINE> " ..
-                        "<CENTRE> <SIZE:large> Divertiti a personalizzare le tue Minimal Display Bars! <LINE><LINE> ",
+                        "<CENTRE> <SIZE:large> <RGB:1,0,0>Segui questi semplici passaggi per caricare il tuo preset personalizzato: <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>1. <RGB:1,1,1> Trova il file <RGB:0,1,0> \"CONFIG.LUA\" <RGB:1,1,1> che desideri utilizzare come preset. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>2. <RGB:1,1,1> Rinomina il file in <RGB:0,1,0> MDB_Preset.LUA <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>3. <RGB:1,1,1> Posiziona il file nella cartella: <LINE> <RGB:0,1,0>%UserProfile%\Zomboid\Lua <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>4. <RGB:1,1,1> Premi il pulsante <RGB:0,1,0> SÌ <RGB:1,1,1> nel gioco per confermare e applicare il tuo preset. <LINE><LINE> " ..
+                        "<CENTRE> <SIZE:large> <RGB:0,1,1>Divertiti a personalizzare le tue Minimal Display Bars! <LINE><LINE> ",
 }
