@@ -1231,20 +1231,23 @@ end
 local function getStress(isoPlayer, useRealValue)
     local stress = isoPlayer:getStats():getStress()
     local stressFromCigarettes = isoPlayer:getStats():getStressFromCigarettes()
-    local maxStressFromCigarettes = isoPlayer:getStats():getMaxStressFromCigarettes()
+    stress = stress - stressFromCigarettes
+    -- local maxStressFromCigarettes = isoPlayer:getStats():getMaxStressFromCigarettes()
+
+
+    local finalStress = stress + stressFromCigarettes
+    if finalStress > 1 then
+        finalStress = 1
+    end
     
     if useRealValue then
-        stress = stress + stressFromCigarettes
+        stress = finalStress
     else
         if isoPlayer:isDead() then
             return -1
         else
-            stress = calcStress(stress + stressFromCigarettes)
+            stress = calcStress(finalStress)
         end
-    end
-    
-    if stress > 1 then
-        stress = 1
     end
     
     return stress
@@ -1784,11 +1787,25 @@ local function toggleModalLoadPreset(generic_bar)
             windowSize = texture:getWidth()
             windowSize = windowSize + (getCore():getOptionFontSizeReal()*100)
         end
-
-    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, getText("UI_LoadPreset_Info"), true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
+    
+    -- for reference videocentre from  MapSpawnSelect:render
+    -- local tempString = ""
+	-- local w = 1920
+	-- local h = 1080
+	
+    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, "", true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
     animPopup:initialise();
     animPopup.backgroundColor = {r=0, g=0, b=0, a=0.9};
     animPopup.alwaysOnTop = true;
+
+    -- test
+    -- local div = w/(animPopup.chatText:getWidth() - 10*2 - 2)
+	-- local w2 = w / div
+	-- local h2 = h / div
+	-- tempString = "<VIDEOCENTRE:".. "test.bik" ..","..w..","..h..","..w2..","..h2..">\n"
+
+    -- animPopup.chatText.text = tempString .. getText("UI_LoadPreset_Info")
+    animPopup.chatText.text = getText("UI_LoadPreset_Info")
     animPopup.chatText:paginate();
     animPopup:setHeightToContents()
     animPopup:ignoreHeightChange()

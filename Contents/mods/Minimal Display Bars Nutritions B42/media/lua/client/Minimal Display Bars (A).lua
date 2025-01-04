@@ -1196,20 +1196,23 @@ end
 local function getStress(isoPlayer, useRealValue)
     local stress = isoPlayer:getStats():getStress()
     local stressFromCigarettes = isoPlayer:getStats():getStressFromCigarettes()
-    local maxStressFromCigarettes = isoPlayer:getStats():getMaxStressFromCigarettes()
+    stress = stress - stressFromCigarettes
+    -- local maxStressFromCigarettes = isoPlayer:getStats():getMaxStressFromCigarettes()
+
+
+    local finalStress = stress + stressFromCigarettes
+    if finalStress > 1 then
+        finalStress = 1
+    end
     
     if useRealValue then
-        stress = stress + stressFromCigarettes
+        stress = finalStress
     else
         if isoPlayer:isDead() then
             return -1
         else
-            stress = calcStress(stress + stressFromCigarettes)
+            stress = calcStress(finalStress)
         end
-    end
-    
-    if stress > 1 then
-        stress = 1
     end
     
     return stress
