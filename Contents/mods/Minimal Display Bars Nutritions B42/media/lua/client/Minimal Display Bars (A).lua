@@ -945,100 +945,21 @@ local function calcHealth(value)
 end
 local function getHealth(isoPlayer, useRealValue) 
     if useRealValue then
-        return isoPlayer:getBodyDamage():getHealth()
+        return isoPlayer:getBodyDamage():getOverallBodyHealth()
     else
         if isoPlayer:isDead() then
             return -1
         else
-            return calcHealth( isoPlayer:getBodyDamage():getHealth() ) 
+            return calcHealth( isoPlayer:getBodyDamage():getOverallBodyHealth()) 
         end
     end
-end
-
-local frameRate = 60
-local oldFrameRate = 60
-local tickRate = 120
-local hpTickCounter = 0
-local performance = getPerformance()
-local function onTickHP()
-    hpTickCounter = hpTickCounter + 1
-    
-    if hpTickCounter >= tickRate then
-        hpTickCounter = 0
-        if frameRate ~= oldFrameRate then
-            tickRate = 60 + performance:getFramerate()
-        end
-    end
-    
-end
-
-local hpWarningFlash = {}
-local onPlayerUpdateTick = 0
-local function onPlayerUpdateCheckBodyDamage(isoPlayer)
-    
-    if onPlayerUpdateTick < 15 then 
-        onPlayerUpdateTick = onPlayerUpdateTick + 1
-        return;
-    else
-        onPlayerUpdateTick = 0
-    end
-    
-    local bodyParts = isoPlayer:getBodyDamage():getBodyParts();
-    local size = bodyParts:size()-1;
-    for i=0, size do
-        local bodyPart = bodyParts:get(i);
-        
-        local bandageLife = bodyPart:getBandageLife();
-        local bandaged = bodyPart:bandaged();
-        local stitched = bodyPart:stitched();
-        local isSplint = bodyPart:isSplint();
-        local bitten = bodyPart:bitten();
-        local bleeding = bodyPart:bleeding();
-        local scratched = bodyPart:scratched();
-        local deepWounded = bodyPart:isDeepWounded();
-        local burnTime = bodyPart:getBurnTime();
-        local fractureTime = bodyPart:getFractureTime();
-        local haveBullet = bodyPart:haveBullet();
-        if --(bandageLife <= 0 and bandaged)
-                (deepWounded and not stitched) 
-                or (bitten and not bandaged) 
-                or (bleeding and not bandaged) 
-                or (scratched and not bandaged) 
-                or (deepWounded and not bandaged) 
-                or (burnTime > 0.0 and not bandaged) 
-                or (fractureTime > 0.0 and not isSplint)
-                or (haveBullet) then
-            hpWarningFlash[isoPlayer] = true;
-            break;
-        end
-        
-        if i >= size then 
-            hpWarningFlash[isoPlayer] = false; 
-        end
-    end
-    
-    --print(isoPlayer:getBodyDamage():getPoisonLevel())
-    if isoPlayer:getBodyDamage():getNumPartsBleeding() >= 1
-            --or isoPlayer:getBodyDamage():getInfectionLevel() >= 31.7 
-            --or isoPlayer:getBodyDamage():getFakeInfectionLevel() >= 31.7
-            or isoPlayer:getMoodles():getMoodleLevel(MoodleType.FromString("Sick")) == 4
-            or isoPlayer:getMoodles():getMoodleLevel(MoodleType.FromString("Thirst")) == 4
-            or isoPlayer:getMoodles():getMoodleLevel(MoodleType.FromString("Hungry")) == 4 
-            or (isoPlayer:getBodyDamage():getPoisonLevel() > 10.0 
-                and isoPlayer:getMoodles():getMoodleLevel(MoodleType.FromString("Sick")) >= 1)
-            or isoPlayer:getBodyDamage():isIsOnFire()
-            or isoPlayer:getMoodles():getMoodleLevel(MoodleType.FromString("Bleeding")) >= 1 then
-        hpWarningFlash[isoPlayer] = true;
-    end
-    
-    return;
 end
 
 local function getColorHealth(isoPlayer) 
     local hpRatio = 0
     
     if not isoPlayer:isDead() then
-        hpRatio = getHealth(isoPlayer) 
+        hpRatio = getHealth(isoPlayer)
     end
     
     local color
@@ -1063,16 +984,16 @@ local function getColorHealth(isoPlayer)
                     alpha = a }
     end
     
-    if hpWarningFlash[isoPlayer] then
-        local hsv = rgbToHsv(color.red, color.green, color.blue)
-        local sat = 0.5 * math.sin(hpTickCounter / 30 * math.pi) + 0.5
+    -- if hpWarningFlash[isoPlayer] then
+    --     local hsv = rgbToHsv(color.red, color.green, color.blue)
+    --     local sat = 0.5 * math.sin(hpTickCounter / 30 * math.pi) + 0.5
         
-        local rgb = hsvToRgb(hsv[1], sat, hsv[3])
-        --print(rgb[1] .. " " .. rgb[2] .. " " .. rgb[3])
-        color.red = rgb[1]
-        color.green = rgb[2]
-        color.blue = rgb[3]
-    end
+    --     local rgb = hsvToRgb(hsv[1], sat, hsv[3])
+    --     --print(rgb[1] .. " " .. rgb[2] .. " " .. rgb[3])
+    --     color.red = rgb[1]
+    --     color.green = rgb[2]
+    --     color.blue = rgb[3]
+    -- end
     
     --print(hpWarningFlash[isoPlayer])
     
@@ -3032,9 +2953,6 @@ local function createUiFor(playerIndex, isoPlayer)
 end
 
 Events.OnRenderTick.Add(preventContextCoverup)
-
-Events.OnRenderTick.Add(onTickHP)
-Events.OnPlayerUpdate.Add(onPlayerUpdateCheckBodyDamage)
 
 Events.OnGameBoot.Add(OnBootGame)
 Events.OnDisconnect.Add(OnLocalPlayerDisconnect)
