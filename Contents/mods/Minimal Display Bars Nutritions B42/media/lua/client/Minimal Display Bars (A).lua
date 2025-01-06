@@ -2337,6 +2337,26 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                 return
             end
         )
+
+        -- Export Preset
+        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Export_Preset")
+        contextMenu:addOption(
+            str,
+            generic_bar,
+            function(generic_bar)
+            
+            if not generic_bar then return end
+            
+            MinimalDisplayBars.io_persistence.store(
+                "MDB_Preset.lua",
+                MinimalDisplayBars.MOD_ID,
+                MinimalDisplayBars.configTables[generic_bar.coopNum]
+            )
+            
+            getPlayer():Say("Preset exported successfully!")
+            return
+            end
+        )
         
     else
     
@@ -2538,10 +2558,7 @@ local function createUiFor(playerIndex, isoPlayer)
     
     -- Make sure this is a local player only.
     if not isoPlayer:isLocalPlayer() then return end
-    
-    frameRate = getPerformance():getFramerate()
-    tickRate = 60 + frameRate
-    
+        
     -- Split-screen support
     local xOffset = getPlayerScreenLeft(playerIndex)
     local yOffset = getPlayerScreenTop(playerIndex)
