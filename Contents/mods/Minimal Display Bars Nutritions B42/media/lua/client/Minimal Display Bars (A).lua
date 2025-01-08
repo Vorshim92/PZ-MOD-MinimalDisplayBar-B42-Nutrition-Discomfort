@@ -783,10 +783,12 @@ local DEFAULT_SETTINGS = {
         ["t"] = 3,
         ["r"] = 2,
         ["b"] = 3,
-        ["color"] = {red = (200 / 255), 
-                    green = (0 / 255), 
-                    blue = (100 / 255), 
-                    alpha = 0.75},
+        ["color"] = {
+            red = 200/255,
+            green = 0/255,
+            blue = 100/255,
+            alpha = 0.75
+        },
         ["isMovable"] = true,
         ["isResizable"] = false,
         ["isVisible"] = true,
@@ -1111,37 +1113,54 @@ local function getColorBoredomLevel(isoPlayer, useRealValue)
 end
 
 -- Stress Functions
-local function calcStress(value)
-    return value
+local function getCigStress(isoPlayer)
+    return isoPlayer:getStats():getStressFromCigarettes()
 end
+
+local function getBaseStress(isoPlayer)
+    -- Stress base = (stress totale) - (stress cigs)
+    local cigStress = getCigStress(isoPlayer)
+    return isoPlayer:getStats():getStress() - cigStress
+end
+
+local maxStress = 1
+local function getMaxCigStress(isoPlayer)
+    return isoPlayer:getStats():getMaxStressFromCigarettes()
+end
+
+local function calcStress(value, maxValue)
+    return value / maxValue
+end
+
 local function getStress(isoPlayer, useRealValue)
-    local stress = isoPlayer:getStats():getStress()
-    local stressFromCigarettes = isoPlayer:getStats():getStressFromCigarettes()
-    stress = stress - stressFromCigarettes
-    -- local maxStressFromCigarettes = isoPlayer:getStats():getMaxStressFromCigarettes()
-
-
-    local finalStress = stress + stressFromCigarettes
-    if finalStress > 1 then
-        finalStress = 1
+    local maxCigaretStress = getMaxCigStress(isoPlayer)
+    local baseStress = getBaseStress(isoPlayer)
+    local cigsStress = getCigStress(isoPlayer)
+    if isoPlayer:isDead() then
+        return -1, -1
     end
-    
+
     if useRealValue then
-        stress = finalStress
+        return baseStress, cigsStress
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            stress = calcStress(finalStress)
-        end
+        baseStress = calcStress(baseStress, maxStress+maxCigaretStress) 
+        cigsStress = calcStress(cigsStress, maxStress+maxCigaretStress)
+        return baseStress, cigsStress
     end
-    
-    return stress
+
 end
 
-local function getColorStress(isoPlayer) 
-    local color
-    color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
+local function getColorStress(isoPlayer)
+    -- Il colore “base” che hai definito in configTables
+    local color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
+
+    color.cigs = {
+        red   = math.min(1, 1.5 * color.red),
+        green = math.min(1, 1.5 * color.green),
+        blue  = math.min(1, 1.5 * color.blue),
+        alpha = 0.75
+    }
+
     return color
 end
 
@@ -1251,6 +1270,7 @@ local function getColorCalorie(isoPlayer)
     color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["calorie"]["color"]
     return color
 end
+
 -- Carbohydrates Functions
 local maxCarbohydrates = 1000  -- 1000F Carbohydrates
 local minCarbohydrates = -500  -- -5000 Carbohydrates
@@ -1360,10 +1380,10 @@ local function getMoodletThresholdTables()
             [4] = calcBoredomLevel(90),
         },
         ["stress"] = {
-            [1] = calcStress(0.25),
-            [2] = calcStress(0.50), 
-            [3] = calcStress(0.75),
-            [4] = calcStress(0.90),
+            [1] = calcStress(0.25,1),
+            [2] = calcStress(0.50,1), 
+            [3] = calcStress(0.75,1),
+            [4] = calcStress(0.90,1),
         },
         ["unhappynesslevel"] = {
             [1] = calcUnhappynessLevel(20), -- 20/100

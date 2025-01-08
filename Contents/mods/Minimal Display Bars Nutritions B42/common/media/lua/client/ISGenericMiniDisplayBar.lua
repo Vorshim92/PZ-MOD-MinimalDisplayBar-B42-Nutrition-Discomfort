@@ -252,29 +252,14 @@ function ISGenericMiniDisplayBar:getImageBG(isoPlayer, index)
     
 end
 
-function ISGenericMiniDisplayBar:render(...)
-    local panel = ISPanel.render(self, ...)
-    
-    local innerWidth = 0
-    local innerHeight = 0
-    local border_t = 0
-    
-    -- Make sure the bar stays on screen when the window is resized
-    --[[if getPlayerScreenWidth(self.playerIndex) < self:getX() + self:getWidth() then
-        self:setX(self:getX() - self:getWidth())
-    end
-    
-    if getPlayerScreenHeight(self.playerIndex) < self:getY() + self:getHeight() then
-        self:setY(self:getY() - self:getHeight())
-    end]]
-    
-    -- Move bar with parent.
+function ISGenericMiniDisplayBar:render()
+    local panel = ISPanel.render(self)
+
     if self.parent and self:isVisible() then
         if not self.parentOldX or not self.parentOldY then
             self.parentOldX = self.parent.x
             self.parentOldY = self.parent.y
         end
-        
         local pDX = self.parentOldX - self.parent.x
         local pDY = self.parentOldY - self.parent.y
         if pDX ~= 0 then
@@ -285,7 +270,6 @@ function ISGenericMiniDisplayBar:render(...)
             self:setY(self.y - pDY)
             self.parentOldY = self.parent.y
         end
-        
         if MinimalDisplayBars.displayBarPropertiesPanel and self == MinimalDisplayBars.displayBarPropertiesPanel.displayBar then
             MinimalDisplayBars.displayBarPropertiesPanel.textEntryX:setText(tostring(self:getX()))
             MinimalDisplayBars.displayBarPropertiesPanel.textEntryY:setText(tostring(self:getY()))
@@ -294,264 +278,371 @@ function ISGenericMiniDisplayBar:render(...)
         self.parentOldX = nil
         self.parentOldY = nil
     end
-    
-    -- Use the color function of this bar if one exists.
-    local value = self.valueFunction.getValue(self.isoPlayer)
-    local colorFunc = self.colorFunction
-    local color 
-    if colorFunc ~= nil and colorFunc.getColor ~= nil then
-        color = colorFunc.getColor(self.isoPlayer)
-        if color ~= nil and self.useColorFunction == true then self.color = color end
+
+    if self.colorFunction and self.colorFunction.getColor then
+        local c = self.colorFunction.getColor(self.isoPlayer)
+        if c and self.useColorFunction then
+            self.color = c
+        end
     end
-    
-    -- If ISOPlayer is dead, or if value is less than or equal to -1, set this bar as not visible.
-    if self.isoPlayer:isDead() or value <= -1 then 
-        if self:isVisible() then self:setVisible(false) end
-    else 
-        if not self:isVisible() then self:setVisible(true) end
+
+    local baseValue, cigsValue = self.valueFunction.getValue(self.isoPlayer)
+    if self.isoPlayer:isDead() or baseValue <= -1 then
+        if self:isVisible() then
+            self:setVisible(false)
+        end
+        return panel
+    else
+        if not self:isVisible() then
+            self:setVisible(true)
+        end
     end
-    
+
     if self.imageShowBack then
-        
-        -- Automatically picks the way that the bar will show moodle status via an icon/image.
-        local switchMoodle = 
-        {
+        local switchMoodle = {
             ["hunger"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Hungry" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hungry")))
             end,
             ["thirst"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Thirst" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Thirst")))
             end,
             ["endurance"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Endurance" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Endurance")))
             end,
             ["fatigue"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Tired" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Tired")))
             end,
             ["boredomlevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Bored" )) )
-            end,
-            ["stress"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Stress" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Bored")))
             end,
             ["unhappynesslevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Unhappy" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Unhappy")))
+            end,
+            ["stress"] = function()
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Stress")))
             end,
             ["discomfortlevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Uncomfortable" )) )
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Uncomfortable")))
             end,
             ["temperature"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Hyperthermia" )) ) 
-                if not self.texBG then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString( "Hypothermia" )) ) end
-            end,
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hyperthermia")))
+                if not self.texBG then
+                    self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hypothermia")))
+                end
+            end
         }
-        
         local switchFunc = switchMoodle[self.idName]
-        if (switchFunc) then
+        if switchFunc then
             switchFunc()
         end
-        
-        --[[
-        if self.idName == "hunger" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hungry")) )
-        elseif self.idName == "thirst" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Thirst")) )
-        elseif self.idName == "endurance" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Endurance")) )
-        elseif self.idName == "fatigue" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Tired")) )
-        elseif self.idName == "boredomlevel" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Bored")) )
-        elseif self.idName == "unhappynesslevel" then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Unhappy")) )
-        elseif self.idName == "temperature" then 
-            self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hyperthermia")) ) 
-            if not self.texBG then self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hypothermia")) ) end
-        end
-        --]]
     end
-    
+
+    if self.idName == "stress" then
+        if self.showImage and self.imageName then
+            if self.isVertical then
+                local w = self.imageSize or 22
+                local tex = getTexture(self.imageName)
+                if tex then
+                    local texH = tex:getHeightOrig()
+                    local texW = tex:getWidthOrig()
+                    local texLargeVal = texH > texW and texH or texW
+                    local texScale = w / texLargeVal
+                    local h = w
+                    local x = (-w * 0.5) + self:getWidth() * 0.5
+                    local y = -w
+                    if self.imageShowBack and self.texBG then
+                        self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
+                    end
+                    if w % 2 == 0 then
+                        x = x + 1
+                        y = y + 1
+                    else
+                        y = y + 1
+                    end
+                    self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
+                end
+            else
+                local h = self.imageSize or 22
+                local tex = getTexture(self.imageName)
+                if tex then
+                    local texH = tex:getHeightOrig()
+                    local texW = tex:getWidthOrig()
+                    local texLargeVal = texH > texW and texH or texW
+                    local texScale = h / texLargeVal
+                    local w = h
+                    local x = -h
+                    local y = (-h * 0.5) + self:getHeight() * 0.5
+                    if self.imageShowBack and self.texBG then
+                        self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
+                    end
+                    if h % 2 == 0 then
+                        x = x + 1
+                        y = y + 1
+                    else
+                        y = y + 1
+                    end
+                    self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
+                end
+            end
+        end
+        local totalValue = baseValue + (cigsValue or 0)
+        if totalValue > 1 then
+            totalValue = 1
+        end
+        if self.isVertical then
+            local totalHeight = math.floor(self.innerHeight * totalValue + 0.5)
+            local baseTop = self.borderSizes.t + (self.innerHeight - totalHeight)
+            
+            -- 1) Disegno la "total bar" in colore base (0..totalValue)
+            self:drawRectStatic(
+                self.borderSizes.l,
+                baseTop,
+                self.innerWidth,
+                totalHeight,
+                self.color.alpha,
+                self.color.red,
+                self.color.green,
+                self.color.blue
+            )
+            
+            -- 2) Disegno la parte cigs “sopra” (0..cigsValue)
+            local cigsHeight = math.floor(self.innerHeight * cigsValue + 0.5)
+            local cigsTop = baseTop + (totalHeight - cigsHeight)  -- inizio dal top del total
+            -- se vuoi che la parte cigs sia "sopra" in senso fisico, 
+            -- potresti fare cigsTop = baseTop + (totalHeight - cigsHeight)
+            -- dipende se consideri top = in alto o in basso.
+            
+            if cigsHeight > 0 and self.color.cigs then
+                self:drawRectStatic(
+                    self.borderSizes.l,
+                    cigsTop,
+                    self.innerWidth,
+                    cigsHeight,
+                    self.color.cigs.alpha,
+                    self.color.cigs.red,
+                    self.color.cigs.green,
+                    self.color.cigs.blue
+                )
+            end
+            
+        else
+            local totalWidth = math.floor(self.innerWidth * totalValue + 0.5)
+            local baseLeft = self.borderSizes.l
+            
+            -- 1) Tutta la parte base
+            self:drawRectStatic(
+                baseLeft,
+                self.borderSizes.t,
+                totalWidth,
+                self.innerHeight,
+                self.color.alpha,
+                self.color.red,
+                self.color.green,
+                self.color.blue
+            )
+            
+            -- 2) Sovrappongo la parte cigs
+            local cigsW = math.floor(self.innerWidth * cigsValue + 0.5)
+            local cigsLeft = baseLeft
+            -- se vuoi che appaia "alla destra" del base, puoi fare
+            -- cigsLeft = baseLeft + (totalWidth - cigsW)
+            
+            if cigsW > 0 and self.color.cigs then
+                self:drawRectStatic(
+                    cigsLeft,
+                    self.borderSizes.t,
+                    cigsW,
+                    self.innerHeight,
+                    self.color.cigs.alpha,
+                    self.color.cigs.red,
+                    self.color.cigs.green,
+                    self.color.cigs.blue
+                )
+            end
+        end
+        if self.showMoodletThresholdLines and self.moodletThresholdTable and type(self.moodletThresholdTable) == "table" then
+            local tv = baseValue + (cigsValue or 0)
+            if tv > 1 then
+                tv = 1
+            end
+            for k, v in pairs(self.moodletThresholdTable) do
+                local tColor = {red = 0, green = 0, blue = 0, alpha = self.color.alpha}
+                if tv < v then
+                    tColor.red = 1
+                    tColor.green = 1
+                    tColor.blue = 1
+                end
+                if self.isVertical then
+                    local lineWidth = self.innerWidth
+                    local lineHeight = 1
+                    local tX = self.borderSizes.l
+                    local tY = self.borderSizes.t + (self.innerHeight - math.floor((self.innerHeight * v) + 0.5))
+                    self:drawRectStatic(tX, tY, lineWidth, lineHeight, tColor.alpha, tColor.red, tColor.green, tColor.blue)
+                else
+                    local lineWidth = 1
+                    local lineHeight = self.innerHeight
+                    local tX = math.floor((self.innerWidth * v) + 0.5)
+                    local tY = self.borderSizes.t
+                    self:drawRectStatic(tX, tY, lineWidth, lineHeight, tColor.alpha, tColor.red, tColor.green, tColor.blue)
+                end
+            end
+        end
+        if self.moving or self.resizing or self.showTooltip then
+            local rb, rc = self.valueFunction.getValue(self.isoPlayer, true)
+            local totalReal = 0
+            if type(rb) == "number" and type(rc) == "number" then
+                totalReal = rb + rc
+            end
+            local xOff = 4
+            local yOff = 4
+            local boxWidth = 200
+            local boxHeight = getTextManager():getFontHeight(UIFont.Small) * 7
+            local core = getCore()
+            local tooltipTxt = getText("ContextMenu_MinimalDisplayBars_stress")
+            .. "\r\nbase ratio: " .. string.format("%.3f", baseValue)
+            .. "\r\ncigs ratio: " .. string.format("%.3f", cigsValue or 0)
+            .. "\r\nTOTAL ratio: " .. string.format("%.3f", totalValue)
+            .. "\r\nbase real: " .. string.format("%.3f", rb or 0)
+            .. "\r\ncigs real: " .. string.format("%.3f", rc or 0)
+            .. "\r\nTOTAL real: " .. string.format("%.3f", totalReal)
+            if core:getScreenWidth() < self:getX() + boxWidth + xOff then
+                xOff = xOff - xOff - boxWidth
+            end
+            if core:getScreenHeight() < self:getY() + boxHeight + yOff then
+                yOff = yOff - yOff - boxHeight
+            end
+            self:drawRectStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 0, 0, 0)
+            self:drawRectBorderStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 1, 1, 1)
+            self:drawText(tooltipTxt, self.borderSizes.l + 2 + xOff, self.borderSizes.t + 2 + yOff, 1, 1, 1, 1, UIFont.Small)
+        end
+        if not self.moving and not ISGenericMiniDisplayBar.isEditing then
+            if self.oldX ~= self.x or self.oldY ~= self.y then
+                self.oldX = self.x
+                self.oldY = self.y
+                MinimalDisplayBars.configTables[self.coopNum][self.idName]["x"] = self.x - self.xOffset
+                MinimalDisplayBars.configTables[self.coopNum][self.idName]["y"] = self.y - self.yOffset
+                MinimalDisplayBars.io_persistence.store(self.fileSaveLocation, MinimalDisplayBars.MOD_ID, MinimalDisplayBars.configTables[self.coopNum])
+            end
+        end
+        if self.alwaysBringToTop and (ISGenericMiniDisplayBar.alwaysBringToTop or self.idName == "menu") then
+            self:bringToTop()
+        end
+        return panel
+    end
+
+    local value = baseValue
+    local innerWidth = 0
+    local innerHeight = 0
+    local border_t = 0
+
     if self.isVertical then
-        
-        -- Vertical
         innerWidth = self.innerWidth
         innerHeight = math.floor((self.innerHeight * value) + 0.5)
         border_t = self.borderSizes.t + ((self.height - self.borderSizes.t - self.borderSizes.b) - innerHeight)
-        
-        -- SHOW IMAGE Vertical
         if self.showImage and self.imageName then
             local w = self.imageSize or 22
             local tex = getTexture(self.imageName)
-            --local texBG = getTexture("media/ui/Moodles/Moodle_Bkg_Bad_1.png")
             if tex then
                 local texH = tex:getHeightOrig()
                 local texW = tex:getWidthOrig()
-                local texLargeVal = (texH > texW) and texH or texW
-                
+                local texLargeVal = texH > texW and texH or texW
                 local texScale = w / texLargeVal
-                
                 local h = w
-                local x = (-w/2) + self:getWidth()/2
+                local x = (-w * 0.5) + self:getWidth() * 0.5
                 local y = -w
-                
-                -- Draw images/textures
-                --self:drawTextureScaled(tex, -imgOffset/2, -w, w, w, 1, 1, 1, 1)
-                
-                -- background texture
                 if self.imageShowBack and self.texBG and self.idName ~= "calorie" then
                     self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
                 end
-                
-                if self.idName ~= "temperature" and self.idName ~= "calorie" then 
+                if self.idName ~= "temperature" and self.idName ~= "calorie" then
                     if w % 2 == 0 then
-                        x = x + 1; 
-                        y = y + 1; 
+                        x = x + 1
+                        y = y + 1
                     else
-                        y = y + 1; 
+                        y = y + 1
                     end
                 end
-                
-                -- moodle texture
                 self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
-                --self:drawTextureScaledUniform(tex, (-imgOffset/2), -w, texScale, 1, 1, 1, 1)
             end
         end
-        
-    else 
-        
-        -- Horizontal
+    else
         innerWidth = math.floor((self.innerWidth * value) + 0.5)
         innerHeight = self.innerHeight
         border_t = self.borderSizes.t
-        
-        -- SHOW IMAGE Horizontal
         if self.showImage and self.imageName then
             local h = self.imageSize or 22
             local tex = getTexture(self.imageName)
-            --local texBG = getTexture("media/ui/Moodles/Moodle_Bkg_Bad_1.png")
             if tex then
                 local texH = tex:getHeightOrig()
                 local texW = tex:getWidthOrig()
-                local texLargeVal = (texH > texW) and texH or texW
-                
+                local texLargeVal = texH > texW and texH or texW
                 local texScale = h / texLargeVal
-                
                 local w = h
-                local x = -h 
-                local y = (-h/2) + self:getHeight()/2
-                
-                -- Draw images/textures
-                --self:drawTextureScaled(tex, -imgOffset/2, -w, w, w, 1, 1, 1, 1)
-                
-                -- background texture
+                local x = -h
+                local y = (-h * 0.5) + self:getHeight() * 0.5
                 if self.imageShowBack and self.texBG and self.idName ~= "calorie" then
                     self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
                 end
-                
-                if self.idName ~= "temperature" and self.idName ~= "calorie" then 
+                if self.idName ~= "temperature" and self.idName ~= "calorie" then
                     if h % 2 == 0 then
-                        x = x + 1; 
-                        y = y + 1; 
+                        x = x + 1
+                        y = y + 1
                     else
-                        y = y + 1; 
+                        y = y + 1
                     end
                 end
-                
-                -- moodle texture
                 self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
-                --self:drawTextureScaledUniform(tex, (-imgOffset/2), -w, texScale, 1, 1, 1, 1)
             end
         end
     end
-    
-    --[[self:drawRectStatic(
-        self.borderSizes.l,
-        self.borderSizes.t,
-        self.innerWidth,
-        self.innerHeight,
-        self.color.alpha,
-        0.3,
-        0.05,
-        0.05)]]
-    
-    --=== Draw the bar value visually ===--
-    -- ( x, y, w, h, a, r, g, b)
-    self:drawRectStatic(
-        self.borderSizes.l,
-        border_t,
-        innerWidth,
-        innerHeight,
-        self.color.alpha,
-        self.color.red,
-        self.color.green,
-        self.color.blue)
-    
-    -- Calculate the where the Moodlet Threshold Lines should be drawn using the MoodletThresholdTable.
-    if self.showMoodletThresholdLines 
-            and self.moodletThresholdTable 
-            and type(self.moodletThresholdTable) == "table" then
-            
+
+    self:drawRectStatic(self.borderSizes.l, border_t, innerWidth, innerHeight, self.color.alpha, self.color.red, self.color.green, self.color.blue)
+
+    if self.showMoodletThresholdLines and self.moodletThresholdTable and type(self.moodletThresholdTable) == "table" then
         for k, v in pairs(self.moodletThresholdTable) do
             local tX
             local tY
             local tColor = {red = 0, green = 0, blue = 0, alpha = self.color.alpha}
-            
-            -- Makes color of threshold lines white or black depending on the values "value" and "v".
-            if value < v then 
+            if value < v then
                 tColor.red = 1
                 tColor.green = 1
                 tColor.blue = 1
             end
-            
             if self.isVertical then
-                -- Vertical
                 innerWidth = self.innerWidth
                 innerHeight = 1
                 tX = self.borderSizes.l
                 tY = self.borderSizes.t + ((self.height - self.borderSizes.t - self.borderSizes.b) - math.floor((self.innerHeight * v) + 0.5))
-            else 
-                -- Horizontal
+                self:drawRectStatic(tX, tY, innerWidth, innerHeight, self.color.alpha, tColor.red, tColor.green, tColor.blue)
+            else
                 innerWidth = 1
                 innerHeight = self.innerHeight
                 tX = math.floor((self.innerWidth * v) + 0.5)
                 tY = self.borderSizes.t
+                self:drawRectStatic(tX, tY, innerWidth, innerHeight, self.color.alpha, tColor.red, tColor.green, tColor.blue)
             end
-            
-            -- ( x, y, w, h, a, r, g, b)
-            self:drawRectStatic(
-                tX,
-                tY,
-                innerWidth,
-                innerHeight,
-                self.color.alpha,
-                tColor.red,
-                tColor.green,
-                tColor.blue)
         end
     end
-    
-    -- Indicate that the user/player is moving or resizing this display bar.
-	if self.moving or self.resizing or self.showTooltip then
-        
+
+    if self.moving or self.resizing or self.showTooltip then
         local xOff = 4
         local yOff = self.idName == "menu" and 20 or 4
         local boxWidth = 200
-        local boxHeight = FONT_HGT_SMALL * 7
-        
+        local boxHeight = getTextManager():getFontHeight(UIFont.Small) * 7
         local core = getCore()
-        
-        -- units
         local unit = ""
-        local realValue = string.format("%.4g", self.valueFunction.getValue(self.isoPlayer, true))
+        local rv = self.valueFunction.getValue(self.isoPlayer, true)
+        local realValue = string.format("%.4g", rv)
         if self.idName == "temperature" then
             if core:isCelsius() or (core.getOptionDisplayAsCelsius and core:getOptionDisplayAsCelsius()) then
                 unit = "°C"
             else
-                realValue = string.format("%.4g", (self.valueFunction.getValue(self.isoPlayer, true) * 9/5) + 32)
+                realValue = string.format("%.4g", (rv * 9 / 5) + 32)
                 unit = "°F"
             end
-            
         elseif self.idName == "calorie" then
-            unit = getText("ContextMenu_MinimalDisplayBars_".. self.idName .."")
+            unit = getText("ContextMenu_MinimalDisplayBars_" .. self.idName)
         end
-        
-        local realValue = realValue.. " " ..unit
-        
-        -- create tooltip text stuff
+        realValue = realValue .. " " .. unit
         local tutorialLeftClick = getText("ContextMenu_MinimalDisplayBars_Tutorial_LeftClick")
         local tutorialRightClick = getText("ContextMenu_MinimalDisplayBars_Tutorial_RightClick")
         local tutorialLeftClickLength = getTextManager():MeasureStringX(UIFont.Small, tutorialLeftClick)
@@ -562,149 +653,44 @@ function ISGenericMiniDisplayBar:render(...)
         if tutorialRightClickLength > boxWidth then
             boxWidth = tutorialRightClickLength + 20
         end
-        
         local tooltipTxt
         if self.idName == "menu" then
-            tooltipTxt = "" ..getText("ContextMenu_MinimalDisplayBars_".. self.idName .."")
-                .."\r\n" ..tutorialLeftClick
-                .."\r\n" ..tutorialRightClick
-                .."\r\n"
-                --.." \r\nx: " ..self.x
-                --.." \r\ny: " ..self.y
-                boxHeight = boxHeight - FONT_HGT_SMALL
-            if self.moving == true then
-                tooltipTxt = tooltipTxt
-                    .." \r\nx: " ..self.x
-                    .." \r\ny: " ..self.y
-                boxHeight = boxHeight + FONT_HGT_SMALL*3
+            tooltipTxt = getText("ContextMenu_MinimalDisplayBars_" .. self.idName)
+            .. "\r\n" .. tutorialLeftClick
+            .. "\r\n" .. tutorialRightClick
+            .. "\r\n"
+            boxHeight = boxHeight - getTextManager():getFontHeight(UIFont.Small)
+            if self.moving then
+                tooltipTxt = tooltipTxt .. "\r\nx: " .. self.x .. "\r\ny: " .. self.y
+                boxHeight = boxHeight + getTextManager():getFontHeight(UIFont.Small) * 3
             end
-            boxHeight = boxHeight - FONT_HGT_SMALL*2
+            boxHeight = boxHeight - getTextManager():getFontHeight(UIFont.Small) * 2
         else
-            tooltipTxt = "" ..getText("ContextMenu_MinimalDisplayBars_".. self.idName .."")
-                .." \r\nratio: " ..string.format("%.4g", value)
-                .." \r\nreal value: " ..realValue
-                .."\r\n"
-                .."\r\n" ..tutorialLeftClick
-                .."\r\n" ..tutorialRightClick
-                .."\r\n"
-                --.." \r\nx: " ..self.x.. 
-                --.." \r\ny: " ..self.y
-            if self.moving == true then
-                tooltipTxt = tooltipTxt
-                    .." \r\nx: " ..self.x
-                    .." \r\ny: " ..self.y
-                boxHeight = boxHeight + FONT_HGT_SMALL*3
+            tooltipTxt = getText("ContextMenu_MinimalDisplayBars_" .. self.idName)
+            .. " \r\nratio: " .. string.format("%.4g", value)
+            .. " \r\nreal value: " .. realValue
+            .. "\r\n"
+            .. "\r\n" .. tutorialLeftClick
+            .. "\r\n" .. tutorialRightClick
+            .. "\r\n"
+            if self.moving then
+                tooltipTxt = tooltipTxt .. "\r\nx: " .. self.x .. "\r\ny: " .. self.y
+                boxHeight = boxHeight + getTextManager():getFontHeight(UIFont.Small) * 3
             end
         end
-        
-        -- make sure tooltips don't go off screen
         if core:getScreenWidth() < self:getX() + boxWidth + xOff then
             xOff = xOff - xOff - boxWidth
         end
-        
         if core:getScreenHeight() < self:getY() + boxHeight + yOff then
             yOff = yOff - yOff - boxHeight
         end
-        
-        -- ( x, y, w, h, a, r, g, b)
-		self:drawRectStatic(
-            self.borderSizes.l,
-            border_t,
-            innerWidth,
-            innerHeight,
-            0.5,
-            0,
-            0,
-            0)
-            
-        -- ( x, y, w, h, a, r, g, b)
-		self:drawRectStatic(
-            self.borderSizes.l + xOff,
-            self.borderSizes.t + yOff,
-            boxWidth,
-            boxHeight,
-            0.85,
-            0,
-            0,
-            0)
-        -- ( x, y, w, h, a, r, g, b)
-		self:drawRectBorderStatic(
-            self.borderSizes.l + xOff,
-            self.borderSizes.t + yOff,
-            boxWidth,
-            boxHeight,
-            0.85,
-            1,
-            1,
-            1)
-        
-        -- (str, x, y, r, g, b, a, font)
-        self:drawText(
-            tooltipTxt,
-            self.borderSizes.l + 2 + xOff,
-            self.borderSizes.t + 2 + yOff,
-            1,
-            1,
-            1,
-            1,
-            UIFont.Small)
+        self:drawRectStatic(self.borderSizes.l, self.borderSizes.t, innerWidth, innerHeight, 0.5, 0, 0, 0)
+        self:drawRectStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 0, 0, 0)
+        self:drawRectBorderStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 1, 1, 1)
+        self:drawText(tooltipTxt, self.borderSizes.l + 2 + xOff, self.borderSizes.t + 2 + yOff, 1, 1, 1, 1, UIFont.Small)
     end
-    
-    
-    
-    --[[if self.showTooltip then
-        self:bringToTop()
-        
-        -- ( x, y, w, h, a, r, g, b)
-		self:drawRectStatic(
-            self.borderSizes.l,
-            self.borderSizes.t,
-            128,
-            128,
-            0.85,
-            0,
-            0,
-            0)
-        -- ( x, y, w, h, a, r, g, b)
-		self:drawRectBorderStatic(
-            self.borderSizes.l,
-            self.borderSizes.t,
-            128,
-            128,
-            0.85,
-            1,
-            1,
-            1)
-        -- (str, x, y, r, g, b, a, font)
-        self:drawText(
-            ("TEST TOOLTIP"),
-            self.borderSizes.l + 5,
-            self.borderSizes.t + 3,
-            1,
-            1,
-            1,
-            1,
-            UIFont.Small)
-    end--]]
 
-    -- Text Debugger for stats.
-    --[[self:drawText(
-        ("Hunger: "..(math.pow(1 - self.isoPlayer:getStats():getHunger(), 2) ).."\r\n"..
-            "Thirst: "..(math.pow(1 - self.isoPlayer:getStats():getThirst(), 2) ).."\r\n"..
-            "Fatigue: "..(math.pow(1 - self.isoPlayer:getStats():getFatigue(), 2) ).."\r\n"..
-            "Endurance: "..((self.isoPlayer:getStats():getEndurance()) ).."\r\n"..
-            ""
-        ),
-        self.borderSizes.l,
-        self.borderSizes.t,
-        1,
-        1,
-        1,
-        1,
-        UIFont.Small)]]
-
-    -- Save to file if the bar was suddenly moved.
-    if self.moving == false and not ISGenericMiniDisplayBar.isEditing then
+    if not self.moving and not ISGenericMiniDisplayBar.isEditing then
         if self.oldX ~= self.x or self.oldY ~= self.y then
             self.oldX = self.x
             self.oldY = self.y
@@ -713,16 +699,14 @@ function ISGenericMiniDisplayBar:render(...)
             MinimalDisplayBars.io_persistence.store(self.fileSaveLocation, MinimalDisplayBars.MOD_ID, MinimalDisplayBars.configTables[self.coopNum])
         end
     end
-    
-    -- Force to the top of UI if true.
-    if self.alwaysBringToTop == true 
-            and (ISGenericMiniDisplayBar.alwaysBringToTop == true 
-            or self.idName == "menu") then 
-        self:bringToTop() 
+
+    if self.alwaysBringToTop and (ISGenericMiniDisplayBar.alwaysBringToTop or self.idName == "menu") then
+        self:bringToTop()
     end
-    
+
     return panel
 end
+
 
 function ISGenericMiniDisplayBar:resetToConfigTable(...)
     --local panel = ISPanel.resetToConfigTable(self, ...)
