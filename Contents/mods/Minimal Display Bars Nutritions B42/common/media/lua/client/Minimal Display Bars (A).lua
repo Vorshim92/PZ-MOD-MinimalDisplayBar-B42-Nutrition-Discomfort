@@ -953,7 +953,18 @@ local DEFAULT_SETTINGS = {
     
 }
 
+--Presets
+local MrX_Settings = require('Presets/MDB_Preset_MrX')
+local Ann_Settings = require('Presets/MDB_Preset_Ann')
+local Kughi_Settings = require('Presets/MDB_Preset_Kughi')
+local Sebo_Settings = require('Presets/MDB_Preset_Sebo')
 
+local PRESETS = {
+    ["MrX"] = MrX_Settings,
+    ["Ann"] = Ann_Settings,
+    ["Kughi"] = Kughi_Settings,
+    ["Sebo"] = Sebo_Settings
+}
 --**********************************************
 -- Vanilla Functions
 
@@ -1645,33 +1656,52 @@ local function onConfirmLoadPreset(target, button, param1, param2)
     local bar = param1
     if not bar then return end
     
-    getPlayer():Say("Loading MDB_Preset.lua")
+    if not param2 then
+        getPlayer():Say("Loading MDB_Preset.lua")
     
-    local loadedPreset = MinimalDisplayBars.io_persistence.load(
-        "MDB_Preset.lua",
-        MinimalDisplayBars.MOD_ID
-    )
-    if not loadedPreset then
-        getPlayer():Say("Can't find MDB_Preset.lua!")
-        return
+        local loadedPreset = MinimalDisplayBars.io_persistence.load(
+            "MDB_Preset.lua",
+            MinimalDisplayBars.MOD_ID
+        )
+        if not loadedPreset then
+            getPlayer():Say("Can't find MDB_Preset.lua!")
+            return
+        end
+
+        local defaultTable = MinimalDisplayBars.io_persistence.load(
+            MinimalDisplayBars.defaultSettingsFileName,
+            MinimalDisplayBars.MOD_ID
+        )
+    
+        -- loadedPreset = MinimalDisplayBars.deepcopy(loadedPreset)
+
+        MinimalDisplayBars.compare_and_insert(defaultTable, loadedPreset, true)
+
+        MinimalDisplayBars.configTables[bar.coopNum] = loadedPreset
+
+        MinimalDisplayBars.io_persistence.store(
+            bar.fileSaveLocation,
+            MinimalDisplayBars.MOD_ID,
+            MinimalDisplayBars.configTables[bar.coopNum]
+        )
+    else
+        getPlayer():Say("Loading "..param2.." Preset")
+        -- getModFileWriter
+        if not param2 then
+            getPlayer():Say("Can't find MDB_Preset.lua!")
+            return
+        end
+        local defaultTable = MinimalDisplayBars.io_persistence.load(
+            MinimalDisplayBars.defaultSettingsFileName,
+            MinimalDisplayBars.MOD_ID
+        )
+    
+        local loadedPreset = MinimalDisplayBars.deepcopy(PRESETS[param2])
+
+        MinimalDisplayBars.compare_and_insert(defaultTable, loadedPreset, true)
+
+        MinimalDisplayBars.configTables[bar.coopNum] = loadedPreset
     end
-
-    local defaultTable = MinimalDisplayBars.io_persistence.load(
-        MinimalDisplayBars.defaultSettingsFileName,
-        MinimalDisplayBars.MOD_ID
-    )
-    
-    loadedPreset = MinimalDisplayBars.deepcopy(loadedPreset)
-
-    MinimalDisplayBars.compare_and_insert(defaultTable, loadedPreset, true)
-
-    MinimalDisplayBars.configTables[bar.coopNum] = loadedPreset
-
-    MinimalDisplayBars.io_persistence.store(
-        bar.fileSaveLocation,
-        MinimalDisplayBars.MOD_ID,
-        MinimalDisplayBars.configTables[bar.coopNum]
-    )
     
     local allBars = MinimalDisplayBars.displayBars[bar.playerIndex]
     for _, someBar in pairs(allBars) do
@@ -1749,7 +1779,7 @@ local function toggleModalImportPreset(generic_bar, name)
         windowSize = windowSize + (getCore():getOptionFontSizeReal()*100)
     end
 	
-    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, "", true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
+    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, "", true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar, name);
     animPopup:initialise();
     animPopup.backgroundColor = {r=0, g=0, b=0, a=0.9};
     animPopup.alwaysOnTop = true;
