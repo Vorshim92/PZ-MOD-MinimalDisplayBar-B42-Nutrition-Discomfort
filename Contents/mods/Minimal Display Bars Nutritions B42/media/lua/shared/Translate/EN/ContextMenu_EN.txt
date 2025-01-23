@@ -21,6 +21,7 @@ ContextMenu_EN = {
     ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "Toggle Display Bar Icons",
     ContextMenu_MinimalDisplayBars_Toggle_Load_Preset = "Load Preset",
     ContextMenu_MinimalDisplayBars_Toggle_Export_Preset = "Export Preset",
+    ContextMenu_MinimalDisplayBars_Toggle_Import_Preset = "Import Preset",
     
     -- Display Bar Options
     ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "Reset Display Bar",

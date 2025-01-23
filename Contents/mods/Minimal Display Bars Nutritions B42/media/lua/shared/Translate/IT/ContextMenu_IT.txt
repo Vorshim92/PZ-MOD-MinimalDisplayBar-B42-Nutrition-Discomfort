@@ -21,6 +21,8 @@ ContextMenu_IT = {
     ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "Attiva / disattiva le icone della barra di visualizzazione",
     ContextMenu_MinimalDisplayBars_Toggle_Load_Preset = "Carica Preset",
     ContextMenu_MinimalDisplayBars_Toggle_Export_Preset = "Esporta Preset",
+    ContextMenu_MinimalDisplayBars_Toggle_Import_Preset = "Importa Preset",
+
     
     -- Display Bar Options
     ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "Ripristina barra di visualizzazione",

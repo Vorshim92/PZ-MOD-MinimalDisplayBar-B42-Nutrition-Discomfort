@@ -7,4 +7,7 @@ UI_IT = {
                         "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>3. <SPACE><RGB:1,1,1> Metti il file nella cartella: <LINE> <RGB:0,1,0>%UserProfile%\Zomboid\Lua <LINE><LINE> " ..
                         "<CENTRE> <SIZE:medium> <RGB:1,0.5,0>4. <SPACE><RGB:1,1,1> Premi il pulsante <SPACE><RGB:0,1,0> SÌ <SPACE><RGB:1,1,1> nel gioco per confermare e applicare il tuo preset. <LINE><LINE> " ..
                         "<CENTRE> <SIZE:large> <RGB:0,1,1>Divertiti a personalizzare le tue Minimal Display Bars! <LINE><LINE> ",
+    UI_ImportPreset_Info = "<H1> <RGB:1,1,1> STAI IMPORTANDO QUESTO PRESET <LINE> <TEXT> " ..
+                        "<IMAGECENTRE:media/ui/mdbImport%1.png> <LINE> " ..
+                        "<CENTRE> <SIZE:large> <RGB:0,1,1>Divertiti a personalizzare le tue Minimal Display Bars!<LINE><LINE> ",
 }

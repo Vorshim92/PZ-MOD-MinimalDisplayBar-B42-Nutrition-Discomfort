@@ -9,16 +9,6 @@
 --
 --============================================================
 
--- temp fix 
-local original_ISDrinkFluidAction_complete = ISDrinkFluidAction.complete
-function ISDrinkFluidAction:complete()
-    original_ISDrinkFluidAction_complete(self)
-    if self.character:getStats():getThirst() < 0 then
-        self.character:getStats():setThirst(0);
-    end
-	return true;
-end
-
 MinimalDisplayBars = {}
 
 MinimalDisplayBars.MOD_ID = "MinimalDisplayBarsNutritions"
@@ -1751,6 +1741,26 @@ local function toggleModalLoadPreset(generic_bar)
     animPopup:setVisible(true);
     animPopup:addToUIManager();
 end
+local function toggleModalImportPreset(generic_bar, name)
+    local texture = getTexture("media/ui/mdbImport"..name..".png")
+    local windowSize = 600+(getCore():getOptionFontSizeReal()*100);
+    if texture then
+        windowSize = texture:getWidth()
+        windowSize = windowSize + (getCore():getOptionFontSizeReal()*100)
+    end
+	
+    local animPopup = ISModalRichText:new((getCore():getScreenWidth()-windowSize)/2, getCore():getScreenHeight()/2-300,windowSize,200, "", true, nil, onConfirmLoadPreset, generic_bar.playerIndex, generic_bar);
+    animPopup:initialise();
+    animPopup.backgroundColor = {r=0, g=0, b=0, a=0.9};
+    animPopup.alwaysOnTop = true;
+    animPopup.chatText.text = getText("UI_ImportPreset_Info", name)
+    animPopup.chatText:paginate();
+    animPopup:setHeightToContents()
+    animPopup:ignoreHeightChange()
+    animPopup:setY(getCore():getScreenHeight()/2-(animPopup:getHeight()/2));
+    animPopup:setVisible(true);
+    animPopup:addToUIManager();
+end
 
 -- ContextMenu
 local contextMenu = nil
@@ -2420,9 +2430,13 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
         )
 
         -- Toggle Load Preset
-        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Load_Preset")
-        contextMenu:addOption(
-            str,
+        local subMenu = ISContextMenu:getNew(contextMenu)
+        contextMenu:addSubMenu(
+            contextMenu:addOption(getText("ContextMenu_MinimalDisplayBars_Toggle_Load_Preset")), 
+            subMenu
+        )
+        subMenu:addOption(
+            getText("ContextMenu_MinimalDisplayBars_Toggle_Load_Preset"),
             generic_bar,
             function(generic_bar)
             
@@ -2432,6 +2446,23 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             return
             end
         )
+        
+        -- Import Preset
+        local presets = {["Kughi"] = "Concentrated",["Ann"] = "Minimal",["MrX"] = "Horizon", ["Sebo"] = "Bottom"}
+        for index, preset in pairs(presets) do
+            local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Import_Preset")
+            subMenu:addOption(
+                str .. " " .. preset .. " ("..index..")",
+                generic_bar,
+                function(generic_bar)
+                
+                if not generic_bar then return end
+                
+                toggleModalImportPreset(generic_bar, index)
+                return
+                end
+            )
+        end
 
         -- Export Preset
         local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Export_Preset")
