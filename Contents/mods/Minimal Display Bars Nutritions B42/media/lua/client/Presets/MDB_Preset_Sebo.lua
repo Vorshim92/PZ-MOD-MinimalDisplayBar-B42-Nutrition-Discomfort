@@ -60,7 +60,7 @@ local obj1 = {
 	};
 	["hunger"] = {
 		["x"] = 727;
-		["y"] = 1270;
+		["y"] = 1250;
 		["width"] = 15;
 		["height"] = 190;
 		["l"] = 2;
@@ -352,6 +352,66 @@ local obj1 = {
 		["isCompact"] = false;
 		["imageShowBack"] = false;
 		["imageName"] = "media/ui/Butter.png";
+		["imageSize"] = 22;
+		["showImage"] = true;
+	};
+	["stress"] = {
+		["x"] = 900;
+		["y"] = 1270;
+		["width"] = 15;
+		["height"] = 170;
+		["l"] = 2;
+		["t"] = 3;
+		["r"] = 2;
+		["b"] = 3;
+		["color"] = {
+			["red"] = 0.7843137254901961;
+			["green"] = 0;
+			["blue"] = 0.39215686274509803;
+			["alpha"] = 0.75;
+			["cigs"] = {
+				["red"] = 1;
+				["green"] = 0;
+				["blue"] = 0.5882352941176471;
+				["alpha"] = 0.75;
+			};
+		};
+		["isMovable"] = true;
+		["isResizable"] = false;
+		["isVisible"] = true;
+		["isVertical"] = true;
+		["alwaysBringToTop"] = false;
+		["showMoodletThresholdLines"] = true;
+		["isCompact"] = false;
+		["imageShowBack"] = true;
+		["imageName"] = "media/ui/Moodle_Icon_Stressed.png";
+		["imageSize"] = 22;
+		["showImage"] = true;
+	};
+	["discomfortlevel"] = {
+		["x"] = 923;
+		["y"] = 1270;
+		["width"] = 15;
+		["height"] = 170;
+		["l"] = 2;
+		["t"] = 3;
+		["r"] = 2;
+		["b"] = 3;
+		["color"] = {
+			["red"] = 0.5019607843137255;
+			["green"] = 0.5019607843137255;
+			["blue"] = 1;
+			["alpha"] = 0.75;
+		};
+		["isMovable"] = true;
+		["isResizable"] = false;
+		["isVisible"] = true;
+		["isVertical"] = true;
+		["alwaysBringToTop"] = false;
+		["showMoodletThresholdLines"] = true;
+		["isCompact"] = false;
+		["imageShowBack"] = true;
+		["imageName"] = "media/ui/Moodles/Mood_Discomfort.png";
 		["imageSize"] = 22;
 		["showImage"] = true;
 	};

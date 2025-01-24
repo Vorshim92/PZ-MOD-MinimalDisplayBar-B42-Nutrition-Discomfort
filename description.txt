@@ -1,0 +1,34 @@
+[b]Minimal Display Bars Nutritions (Build 42 Compatible)[/b]
+
+This mod builds upon the original Minimal Display Bars by introducing [b]Stress[/b], [b]Lipids[/b], [b]Proteins[/b], [b]Carbohydrates[/b], and a new [b]Discomfort Level[/b] tailored for Build 42.
+
+[h1]Key Features:[/h1]
+1. [b]New Stress Level Bar[/b]  
+   - A [b]Stress Level Bar[/b] has been added, which also accounts for stress caused by smoking cigarettes.  
+   - Even if the stress value exceeds [b]1[/b] due to smoking, it will be capped at [b]1[/b] for visual clarity.  
+   - [i](Coming Soon!)[/i] The bar will include [b]dual coloring[/b] to distinguish the stress caused by cigarettes from the base stress level.
+
+2. [b]Enhanced Save System[/b]  
+   - The save system has been upgraded from [i]getModFileWriter[/i] to [i]getFileWriter[/i] (reader included), ensuring all save files are now stored in the [i]User/Zomboid/Lua[/i] directory.  
+   - Save files created:  
+     - [code]MOD Config Options (MinimalDisplayBarsNutritions)B42.lua[/code] for Build 42.  
+     - [code]MOD Config Options (MinimalDisplayBarsNutritions).lua[/code] for Build 41.
+
+3. [b]Load and Share Presets[/b]  
+   - A [b]"Load Preset"[/b] option has been added (see screenshots).  
+   - You can now easily load presets from others! Simply place the [code]MOD Config Options (MinimalDisplayBarsNutritions).lua[/code] file from a friend in the [i]User/Zomboid/Lua[/i] folder and rename it to [code]MDB_Preset.lua[/code].
+
+4. [b]Export Your Configuration[/b]  
+   - Export your current mod settings with the [b]"Export Preset"[/b] option, which generates an [code]MDB_Preset.lua[/code] file automatically in the same directory.
+
+5. [b]Bug Fixes[/b]  
+   - Fixed the vanilla thirst bug, which could become glitchy after drinking.
+
+[h1]Credits:[/h1]  
+I am [b]NOT[/b] the creator of the original mod. Full credit goes to [b]ATPHHe[/b] for the base version of Minimal Display Bars.
+
+[b]Original Mod by ATPHHe:[/b]  
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2004998206]Steam Workshop Link[/url]
+
+[b]Workshop ID:[/b] 3388844542  
+[b]Mod ID:[/b] MinimalDisplayBarsNutritionsB42
