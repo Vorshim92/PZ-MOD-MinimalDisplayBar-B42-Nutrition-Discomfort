@@ -2594,8 +2594,8 @@ local function OnBootGame()
 end
 
 -- added for split-screen support
-local function OnLocalPlayerDisconnect(isoPlayer)
-    if isoPlayer:isLocalPlayer() then
+local function OnLocalPlayerDisconnect()
+    if getPlayer():isLocalPlayer() then
     
         --[[numOfLocalClients = numOfLocalClients - 1
         if numOfLocalClients < 0 then 

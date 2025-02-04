@@ -2659,7 +2659,7 @@ end
 
 -- added for split-screen support
 local function OnLocalPlayerDisconnect(isoPlayer)
-    if isoPlayer:isLocalPlayer() then
+    if getPlayer():isLocalPlayer() then
     
         --[[numOfLocalClients = numOfLocalClients - 1
         if numOfLocalClients < 0 then 

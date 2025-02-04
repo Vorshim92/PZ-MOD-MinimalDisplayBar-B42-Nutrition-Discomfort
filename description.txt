@@ -21,7 +21,7 @@ This mod builds upon the original Minimal Display Bars by introducing [b]Stress[
 4. [b]Export Your Configuration[/b]  
    - Export your current mod settings with the [b]"Export Preset"[/b] option, which generates an [code]MDB_Preset.lua[/code] file automatically in the same directory.
 
-5. [b]Bug Fixes[/b]  
+5. [b]Bug Fixes (REMOVED: FIXED IN 42.1.0)[/b]  
    - Fixed the vanilla thirst bug, which could become glitchy after drinking.
 
 [h1]Credits:[/h1]  
