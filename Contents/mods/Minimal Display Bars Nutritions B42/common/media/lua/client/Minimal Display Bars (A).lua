@@ -598,6 +598,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["hp"] = {
         ["x"] = 70,
@@ -623,6 +624,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["hunger"] = {
         ["x"] = 70 + 15,
@@ -648,6 +650,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Hungry.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["thirst"] = {
         ["x"] = 85 + (8 * 1),
@@ -673,6 +676,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Thirsty.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["endurance"] = {
         ["x"] = 85 + (8 * 2),
@@ -698,6 +702,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Endurance.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["fatigue"] = {
         ["x"] = 85 + (8 * 3),
@@ -723,6 +728,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Tired.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["boredomlevel"] = {
         ["x"] = 85 + (8 * 4),
@@ -748,6 +754,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Bored.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["unhappynesslevel"] = {
         ["x"] = 85 + (8 * 5),
@@ -773,6 +780,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Unhappy.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["stress"] = {
         ["x"] = 85 + (8 * 6),
@@ -798,6 +806,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodle_Icon_Stressed.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["discomfortlevel"] = {
         ["x"] = 85 + (8 * 7),
@@ -823,6 +832,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Mood_Discomfort.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["temperature"] = {
         ["x"] = 85 + (8 * 8),
@@ -848,6 +858,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/MDBTemperature.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["calorie"] = {
         ["x"] = 85 + (8 * 9),
@@ -873,6 +884,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/TraitNutritionist.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["carbohydrates"] = {
         ["x"] = 85 + (8 * 10),
@@ -898,6 +910,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/SpagettiRaw.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["proteins"] = {
         ["x"] = 85 + (8 * 11),
@@ -923,6 +936,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Proteins.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["lipids"] = {
         ["x"] = 85 + (8 * 12),
@@ -948,6 +962,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Butter.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     }
         
     
@@ -2534,12 +2549,13 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             function(generic_bar)
                 
                 if not generic_bar then return end
-                
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false then 
-                    
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false then
                     generic_bar.isVertical = true
                     MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = true
-                    
+                    if generic_bar.isIconRight == true then 
+                        generic_bar.isIconRight = false
+                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = false
+                    end
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
                     generic_bar:setWidth(oldH)
@@ -2560,19 +2576,19 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             end
         )
         
-        -- set horizontal
+        -- set horizontal (left)
         contextMenu:addOption(
             getText("ContextMenu_MinimalDisplayBars_Set_Horizontal"),
             generic_bar,
             function(generic_bar)
             
                 if not generic_bar then return end
-                
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true then 
-                    
-                    generic_bar.isVertical = false
-                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
-                    
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true then
+                    if generic_bar.isVertical == true then
+                        generic_bar.isVertical = false
+                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
+                    end
+
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
                     generic_bar:setWidth(oldH)
@@ -2589,6 +2605,26 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                     -- recreate MoveBarsTogether panel
                     MinimalDisplayBars.createMoveBarsTogetherPanel(generic_bar.playerIndex)
                 end
+                return
+            end
+        )
+        -- set horizontal icon position
+        contextMenu:addOption(
+            "Set Horizontal Icon ("..(generic_bar.isIconRight and "Left" or "Right")..")",
+            generic_bar,
+            function(generic_bar)
+            
+                if not generic_bar then return end 
+                    generic_bar.isIconRight = not generic_bar.isIconRight
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = not generic_bar.isIconRight
+                    
+                    MinimalDisplayBars.io_persistence.store(
+                        generic_bar.fileSaveLocation, 
+                        MinimalDisplayBars.MOD_ID, 
+                        MinimalDisplayBars.configTables[generic_bar.coopNum])
+                    
+                    -- recreate MoveBarsTogether panel
+                    MinimalDisplayBars.createMoveBarsTogetherPanel(generic_bar.playerIndex)
                 return
             end
         )

@@ -371,6 +371,9 @@ function ISGenericMiniDisplayBar:render()
                     local texScale = h / texLargeVal
                     local w = h
                     local x = -h
+                    if self.isIconRight then
+                        x = self:getWidth() -- Sposto l'icona a destra
+                    end
                     local y = (-h * 0.5) + self:getHeight() * 0.5
                     if self.imageShowBack and self.texBG then
                         self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
@@ -578,6 +581,9 @@ function ISGenericMiniDisplayBar:render()
                 local texScale = h / texLargeVal
                 local w = h
                 local x = -h
+                if self.isIconRight then
+                    x = self:getWidth() -- Sposto l'icona a destra
+                end
                 local y = (-h * 0.5) + self:getHeight() * 0.5
                 if self.imageShowBack and self.texBG and self.idName ~= "calorie" then
                     self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)

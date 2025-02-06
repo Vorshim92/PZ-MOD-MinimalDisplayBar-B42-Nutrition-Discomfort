@@ -2470,12 +2470,13 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             function(generic_bar)
                 
                 if not generic_bar then return end
-                
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false then 
-                    
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false then
                     generic_bar.isVertical = true
                     MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = true
-                    
+                    if generic_bar.isIconRight == true then 
+                        generic_bar.isIconRight = false
+                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = false
+                    end
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
                     generic_bar:setWidth(oldH)
@@ -2496,19 +2497,19 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             end
         )
         
-        -- set horizontal
+        -- set horizontal (left)
         contextMenu:addOption(
             getText("ContextMenu_MinimalDisplayBars_Set_Horizontal"),
             generic_bar,
             function(generic_bar)
             
                 if not generic_bar then return end
-                
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true then 
-                    
-                    generic_bar.isVertical = false
-                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
-                    
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true then
+                    if generic_bar.isVertical == true then
+                        generic_bar.isVertical = false
+                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
+                    end
+
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
                     generic_bar:setWidth(oldH)
@@ -2525,6 +2526,26 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                     -- recreate MoveBarsTogether panel
                     MinimalDisplayBars.createMoveBarsTogetherPanel(generic_bar.playerIndex)
                 end
+                return
+            end
+        )
+        -- set horizontal icon position
+        contextMenu:addOption(
+            "Set Horizontal Icon ("..(generic_bar.isIconRight and "Left" or "Right")..")",
+            generic_bar,
+            function(generic_bar)
+            
+                if not generic_bar then return end 
+                    generic_bar.isIconRight = not generic_bar.isIconRight
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = not generic_bar.isIconRight
+                    
+                    MinimalDisplayBars.io_persistence.store(
+                        generic_bar.fileSaveLocation, 
+                        MinimalDisplayBars.MOD_ID, 
+                        MinimalDisplayBars.configTables[generic_bar.coopNum])
+                    
+                    -- recreate MoveBarsTogether panel
+                    MinimalDisplayBars.createMoveBarsTogetherPanel(generic_bar.playerIndex)
                 return
             end
         )
