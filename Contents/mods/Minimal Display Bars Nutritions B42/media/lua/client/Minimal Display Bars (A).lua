@@ -2549,6 +2549,27 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                 return
             end
         )
+
+        -- set horizontal icon position
+        contextMenu:addOption(
+            (generic_bar.showImage and "Hide" or "Show").." Icon",
+            generic_bar,
+            function(generic_bar)
+            
+                if not generic_bar then return end 
+                    generic_bar.showImage = not generic_bar.showImage
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["showImage"] = not generic_bar.showImage
+                    
+                    MinimalDisplayBars.io_persistence.store(
+                        generic_bar.fileSaveLocation, 
+                        MinimalDisplayBars.MOD_ID, 
+                        MinimalDisplayBars.configTables[generic_bar.coopNum])
+                    
+                    -- recreate MoveBarsTogether panel
+                    MinimalDisplayBars.createMoveBarsTogetherPanel(generic_bar.playerIndex)
+                return
+            end
+        )
         
         -- set color
         if generic_bar.idName ~= "temperature" then
