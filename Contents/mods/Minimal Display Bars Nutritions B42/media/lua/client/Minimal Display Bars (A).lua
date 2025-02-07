@@ -598,6 +598,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["hp"] = {
         ["x"] = 70,
@@ -623,6 +624,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["hunger"] = {
         ["x"] = 70 + 15,
@@ -648,6 +650,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Hungry.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["thirst"] = {
         ["x"] = 85 + (8 * 1),
@@ -673,6 +676,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Thirsty.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["endurance"] = {
         ["x"] = 85 + (8 * 2),
@@ -698,6 +702,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Endurance.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["fatigue"] = {
         ["x"] = 85 + (8 * 3),
@@ -723,6 +728,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Tired.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["boredomlevel"] = {
         ["x"] = 85 + (8 * 4),
@@ -748,6 +754,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Bored.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["unhappynesslevel"] = {
         ["x"] = 85 + (8 * 5),
@@ -773,6 +780,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodles/Moodle_Icon_Unhappy.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["stress"] = {
         ["x"] = 85 + (8 * 6),
@@ -800,6 +808,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Moodle_Icon_Stressed.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["temperature"] = {
         ["x"] = 85 + (8 * 7),
@@ -825,6 +834,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/MDBTemperature.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["calorie"] = {
         ["x"] = 85 + (8 * 8),
@@ -850,6 +860,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/TraitNutritionist.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["carbohydrates"] = {
         ["x"] = 85 + (8 * 9),
@@ -875,6 +886,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/SpagettiRaw.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["proteins"] = {
         ["x"] = 85 + (8 * 10),
@@ -900,6 +912,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Proteins.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     },
     ["lipids"] = {
         ["x"] = 85 + (8 * 11),
@@ -925,6 +938,7 @@ local DEFAULT_SETTINGS = {
         ["imageName"] = "media/ui/Butter.png",
         ["imageSize"] = 22,
         ["showImage"] = false,
+        ["isIconRight"] = false,
     }
         
     
