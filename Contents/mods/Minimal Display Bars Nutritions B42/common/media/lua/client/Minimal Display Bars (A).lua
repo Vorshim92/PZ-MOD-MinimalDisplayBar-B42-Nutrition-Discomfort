@@ -2628,7 +2628,7 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
                 return
             end
         )
-        -- set horizontal icon position
+        -- set hide/show icon
         contextMenu:addOption(
             (generic_bar.showImage and "Hide" or "Show").." Icon",
             generic_bar,
