@@ -1693,8 +1693,8 @@ local function onConfirmLoadPreset(target, button, param1, param2)
                 toggleCompact(minibar) end
             if barHP.moveBarsTogether ~= minibar.moveBarsTogether then
                 toggleMoveBarsTogether(minibar) end
-            if barHP.showImage ~= minibar.showImage then
-                toggleShowImage(minibar) end
+            -- if barHP.showImage ~= minibar.showImage then
+            --     toggleShowImage(minibar) end
         end
     end
 
@@ -2375,14 +2375,9 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
         )
         
         -- Toggle Show Image
-        local str
-        if barHP.showImage == true then
-            str = getText("ContextMenu_MinimalDisplayBars_Toggle_Show_Icon")
-                        .." ("..getText("ContextMenu_MinimalDisplayBars_ON")..")"
-        else
-            str = getText("ContextMenu_MinimalDisplayBars_Toggle_Show_Icon")
-                        .." ("..getText("ContextMenu_MinimalDisplayBars_OFF")..")"
-        end
+        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Show_Image")..
+                    " ("..getText("ContextMenu_MinimalDisplayBars_"..(barHP.showImage and "ON" or "OFF"))..")"
+                    
         contextMenu:addOption(
             str,
             generic_bar,
@@ -3107,8 +3102,8 @@ local function createUiFor(playerIndex, isoPlayer)
                 toggleCompact(bar) end
             if barHP.moveBarsTogether ~= bar.moveBarsTogether then
                 toggleMoveBarsTogether(bar) end
-            if barHP.showImage ~= bar.showImage then
-                toggleShowImage(bar) end
+            -- if barHP.showImage ~= bar.showImage then
+            --     toggleShowImage(bar) end
         end
     end
     
