@@ -2544,13 +2544,9 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             function(generic_bar)
                 
                 if not generic_bar then return end
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false then
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == false or generic_bar.isVertical == false then
                     generic_bar.isVertical = true
                     MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = true
-                    if generic_bar.isIconRight == true then 
-                        generic_bar.isIconRight = false
-                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = false
-                    end
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
                     generic_bar:setWidth(oldH)
@@ -2571,18 +2567,16 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             end
         )
         
-        -- set horizontal (left)
+        -- set horizontal
         contextMenu:addOption(
             getText("ContextMenu_MinimalDisplayBars_Set_Horizontal"),
             generic_bar,
             function(generic_bar)
             
                 if not generic_bar then return end
-                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true then
-                    if generic_bar.isVertical == true then
-                        generic_bar.isVertical = false
-                        MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
-                    end
+                if MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] == true or generic_bar.isVertical == true then
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isVertical"] = false
+                    generic_bar.isVertical = false
 
                     local oldW = tonumber(generic_bar.oldWidth)
                     local oldH = tonumber(generic_bar.oldHeight)
