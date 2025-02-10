@@ -2611,7 +2611,7 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             
                 if not generic_bar then return end 
                     generic_bar.isIconRight = not generic_bar.isIconRight
-                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = not generic_bar.isIconRight
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["isIconRight"] = generic_bar.isIconRight
                     
                     MinimalDisplayBars.io_persistence.store(
                         generic_bar.fileSaveLocation, 
@@ -2631,7 +2631,7 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             
                 if not generic_bar then return end 
                     generic_bar.showImage = not generic_bar.showImage
-                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["showImage"] = not generic_bar.showImage
+                    MinimalDisplayBars.configTables[generic_bar.coopNum][generic_bar.idName]["showImage"] = generic_bar.showImage
                     
                     MinimalDisplayBars.io_persistence.store(
                         generic_bar.fileSaveLocation, 
