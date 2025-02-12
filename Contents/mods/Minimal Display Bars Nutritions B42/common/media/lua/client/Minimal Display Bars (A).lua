@@ -1042,6 +1042,26 @@ local function fixThirst(isoStats)
     isoStats:setThirst(0.0)
 end
 
+local function fixCalories(nutrition)
+    if not nutrition then return end
+    nutrition:setCalories(800.0)
+end
+
+local function fixLipids(nutrition)
+    if not nutrition then return end
+    nutrition:setLipids(0.0)
+end
+
+local function fixProteins(nutrition)
+    if not nutrition then return end
+    nutrition:setProteins(0.0)
+end
+
+local function fixCarbohydrates(nutrition)
+    if not nutrition then return end
+    nutrition:setCarbohydrates(0.0)
+end
+
 
 
 
@@ -1142,7 +1162,7 @@ local function getThirst(isoPlayer, useRealValue)
 
     local isoStats = isoPlayer:getStats()
     local thirst = isoStats:getThirst()
-    if thirst < 0 then
+    if isNaN(thirst) or thirst < 0 then
         fixThirst(isoStats)
         thirst = isoStats:getThirst()
     end
@@ -1399,15 +1419,23 @@ local minCalorie = -2200  -- -2200 calories
 local function calcCalorie(value)
     return (value - minCalorie) / (maxCalorie - minCalorie)
 end
-local function getCalorie(isoPlayer, useRealValue) 
+
+local function getCalorie(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local nutrition = isoPlayer:getNutrition()
+    local calories = nutrition:getCalories()
+    if isNaN(calories) then
+        fixCalories(nutrition)
+        calories = nutrition:getCalories()
+    end
+
     if useRealValue then
-        return isoPlayer:getNutrition():getCalories()
+        return calories
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcCalorie( isoPlayer:getNutrition():getCalories() )
-        end
+        return calcCalorie(calories)
     end
 end
 
@@ -1422,15 +1450,23 @@ local minCarbohydrates = -500  -- -5000 Carbohydrates
 local function calcCarbohydrates(value)
     return (value - minCarbohydrates) / (maxCarbohydrates - minCarbohydrates)
 end
-local function getCarbohydrates(isoPlayer, useRealValue) 
+
+local function getCarbohydrates(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local nutrition = isoPlayer:getNutrition()
+    local carbo = nutrition:getCarbohydrates()
+    if isNaN(carbo) then
+        fixCarbohydrates(nutrition)
+        carbo = nutrition:getCarbohydrates()
+    end
+
     if useRealValue then
-        return isoPlayer:getNutrition():getCarbohydrates()
+        return carbo
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcCarbohydrates( isoPlayer:getNutrition():getCarbohydrates() )
-        end
+        return calcCarbohydrates(carbo)
     end
 end
 
@@ -1446,15 +1482,23 @@ local minProteins = -500  -- -5000 Proteins
 local function calcProteins(value)
     return (value - minProteins) / (maxProteins - minProteins)
 end
-local function getProteins(isoPlayer, useRealValue) 
+
+local function getProteins(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local nutrition = isoPlayer:getNutrition()
+    local proteins = nutrition:getProteins()
+    if isNaN(proteins) then
+        fixProteins(nutrition)
+        proteins = nutrition:getProteins()
+    end
+
     if useRealValue then
-        return isoPlayer:getNutrition():getProteins()
+        return proteins
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcProteins( isoPlayer:getNutrition():getProteins() )
-        end
+        return calcProteins(proteins)
     end
 end
 
@@ -1470,15 +1514,23 @@ local minLipids = -500  -- -5000 lipids
 local function calcLipids(value)
     return (value - minLipids) / (maxLipids - minLipids)
 end
-local function getLipids(isoPlayer, useRealValue) 
+
+local function getLipids(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local nutrition = isoPlayer:getNutrition()
+    local lipids = nutrition:getLipids()
+    if isNaN(lipids) then
+        fixLipids(nutrition)
+        lipids = nutrition:getLipids()
+    end
+
     if useRealValue then
-        return isoPlayer:getNutrition():getLipids()
+        return lipids
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcLipids( isoPlayer:getNutrition():getLipids() )
-        end
+        return calcLipids(lipids)
     end
 end
 
