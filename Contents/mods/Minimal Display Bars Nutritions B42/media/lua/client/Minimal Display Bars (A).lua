@@ -968,8 +968,18 @@ MinimalDisplayBars.displayBars = {} -- This should store all the display bars as
 
 --fix vanilla bug stat == nan
 
+-- local function isNaN(value)
+--     return type(value) == "number" and value ~= value
+-- end
+
 local function isNaN(value)
-    return type(value) == "number" and value ~= value
+    if type(value) == "string" then
+      value = tonumber(value)
+      if value == nil then return nil end
+    elseif type(value) ~= "number" then
+      return nil
+    end
+    return value ~= value
 end
 
 local function fixWornItems(isoPlayer)
