@@ -966,6 +966,41 @@ local PRESETS = {
 
 MinimalDisplayBars.displayBars = {} -- This should store all the display bars as they are created.
 
+--fix vanilla bug stat == nan
+-- local function isNaN(value) return tostring(value) == "nan" end
+local function isNaN(value)
+    return type(value) == "number" and value ~= value
+end
+
+local function fixWornItems(isoPlayer)
+    local wornItems = isoPlayer:getWornItems()
+    if not wornItems then return end
+
+    local size = wornItems:size()
+    for i = 0, size - 1 do
+        local item = wornItems:get(i):getItem()
+        if item and isNaN(item:getWetness()) then
+            print("Fixing Wetness Bug for Item: " .. item:getType())
+            item:setWetness(0.0)
+        end
+    end
+end
+
+local function fixTemperature(isoPlayer,bodyDmg)
+    if not bodyDmg or not isoPlayer then return end
+
+    -- Fix indumenti buggati
+    fixWornItems(isoPlayer)
+
+    -- Reset della temperatura corporea
+    local therm = bodyDmg:getThermoregulator()
+    bodyDmg:setWetness(0.0)
+    bodyDmg:setTemperature(37.0)
+    if therm then
+        therm:reset()
+    end
+end
+
 --==========================
 -- Health Functions
 local function calcHealth(value)
@@ -1220,17 +1255,95 @@ local minTempLim = 19  -- 19.0 C
 local function calcTemperature(value)
     return (value - minTempLim) / (maxTempLim - minTempLim)
 end
-local function getTemperature(isoPlayer, useRealValue) 
+local function getTemperature(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local bodyDmg = isoPlayer:getBodyDamage()
+    if not bodyDmg then return -1 end
+
+    local temperature = bodyDmg:getTemperature()
+    if isNaN(temperature) then
+        fixTemperature(isoPlayer, bodyDmg)
+        temperature = bodyDmg:getTemperature()
+    end
+
     if useRealValue then
-        return isoPlayer:getBodyDamage():getTemperature()
+        return temperature
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcTemperature( isoPlayer:getBodyDamage():getTemperature() )
-        end
+        return calcTemperature(temperature)
     end
 end
+
+-- print ("bodyDamage = " .. bodyDamage)
+
+-- local char = bodyDamage:getParentChar()
+-- print ("char = " .. char)
+
+-- getPlayer():getStats():resetStats() -- Stats.java
+-- public void resetStats() {
+--     this.Anger = 0.0F;
+--     this.boredom = 0.0F;
+--     this.fatigue = 0.0F;
+--     this.hunger = 0.0F;
+--     this.idleboredom = 0.0F;
+--     this.morale = 0.5F;
+--     this.stress = 0.0F;
+--     this.Fear = 0.0F;
+--     this.Panic = 0.0F;
+--     this.Sanity = 1.0F;
+--     this.Sickness = 0.0F;
+--     this.Boredom = 0.0F;
+--     this.Pain = 0.0F;
+--     this.Drunkenness = 0.0F;
+--     this.thirst = 0.0F;
+--  }
+
+-- vorshim = function()
+--     local isoPlayer = getPlayer()
+--     local this = isoPlayer:getBodyDamage()
+--     local therm = this:getThermoregulator()
+--     this:setWetness(0.0);
+--     this:setTemperature(37.0);
+--     therm:reset()
+-- end
+
+-- vorshim = function(itemscript)
+--  local player = getPlayer()
+--  local inventory = player:getInventory()
+--  local itemArray = inventory:getSomeTypeRecurse(itemscript, 1);
+--     for i=0, itemArray:size()-1 do
+--         local item = itemArray:get(i);
+--         local itemId = item:getID();
+--         -- item:check()
+--         item:setWetness(0.0);
+--         -- inventory:removeItemWithIDRecurse(itemId);
+--     end
+-- end
+
+
+
+-- vorshim = function()
+--     local function fixTemperature(item, isoPlayer)
+--             item:setWetness(0.0);
+--             local bodyDmg = isoPlayer:getBodyDamage()
+--             local therm = bodyDmg:getThermoregulator()
+--             bodyDmg:setWetness(0.0);
+--             bodyDmg:setTemperature(37.0);
+--             therm:reset()
+--     end
+--     local player = getPlayer()
+--     local wornItems = player:getWornItems()
+--     local size = wornItems:size()
+--     for i = 0, size - 1 do
+--         local item = wornItems:get(i):getItem()
+--         if tostring(item:getWetness()) == "nan" then
+--             print("Item Name: ".. item:getType() .. " - isWetnessBugged = " .. item:getWetness())
+--             fixTemperature(item, player)
+--         end
+--     end
+-- end
 
 local function getColorTemperature(isoPlayer) 
     local tempRatio = getTemperature(isoPlayer) 
