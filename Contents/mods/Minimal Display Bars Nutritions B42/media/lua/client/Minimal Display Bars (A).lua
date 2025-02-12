@@ -967,7 +967,7 @@ local PRESETS = {
 MinimalDisplayBars.displayBars = {} -- This should store all the display bars as they are created.
 
 --fix vanilla bug stat == nan
--- local function isNaN(value) return tostring(value) == "nan" end
+
 local function isNaN(value)
     return type(value) == "number" and value ~= value
 end
@@ -979,8 +979,8 @@ local function fixWornItems(isoPlayer)
     local size = wornItems:size()
     for i = 0, size - 1 do
         local item = wornItems:get(i):getItem()
-        if item and isNaN(item:getWetness()) then
-            print("Fixing Wetness Bug for Item: " .. item:getType())
+        if item and instanceof(item, "Clothing") and isNaN(item:getWetness()) then
+            -- print("Fixing Wetness Bug for Item: " .. item:getType())
             item:setWetness(0.0)
         end
     end
@@ -1308,7 +1308,7 @@ end
 --     this:setTemperature(37.0);
 --     therm:reset()
 -- end
-
+-- Base.C420_PAPR
 -- vorshim = function(itemscript)
 --  local player = getPlayer()
 --  local inventory = player:getInventory()
@@ -1317,7 +1317,8 @@ end
 --         local item = itemArray:get(i);
 --         local itemId = item:getID();
 --         -- item:check()
---         item:setWetness(0.0);
+--         print("Item Name: ".. item:getType() .. " - is istance of clothing? " .. instanceof(item, "Clothing"))
+--         item:check()
 --         -- inventory:removeItemWithIDRecurse(itemId);
 --     end
 -- end
