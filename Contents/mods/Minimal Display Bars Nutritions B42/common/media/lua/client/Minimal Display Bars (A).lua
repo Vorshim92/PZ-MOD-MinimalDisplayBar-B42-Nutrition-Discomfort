@@ -989,6 +989,53 @@ local PRESETS = {
 
 MinimalDisplayBars.displayBars = {} -- This should store all the display bars as they are created.
 
+--fix vanilla bug stat == nan
+
+-- local function isNaN(value)
+--     return type(value) == "number" and value ~= value
+-- end
+
+local function isNaN(value)
+    if type(value) == "string" then
+      value = tonumber(value)
+      if value == nil then return nil end
+    elseif type(value) ~= "number" then
+      return nil
+    end
+    return value ~= value
+end
+
+local function fixWornItems(isoPlayer)
+    local wornItems = isoPlayer:getWornItems()
+    if not wornItems then return end
+
+    local size = wornItems:size()
+    for i = 0, size - 1 do
+        local item = wornItems:get(i):getItem()
+        if item and instanceof(item, "Clothing") and isNaN(item:getWetness()) then
+            -- print("Fixing Wetness Bug for Item: " .. item:getType())
+            item:setWetness(0.0)
+        end
+    end
+end
+
+local function fixTemperature(isoPlayer,bodyDmg)
+    if not bodyDmg or not isoPlayer then return end
+
+    -- Fix indumenti buggati
+    fixWornItems(isoPlayer)
+
+    -- Reset della temperatura corporea
+    local therm = bodyDmg:getThermoregulator()
+    bodyDmg:setWetness(0.0)
+    bodyDmg:setTemperature(37.0)
+    if therm then
+        therm:reset()
+    end
+end
+
+
+
 --==========================
 -- Health Functions
 local function calcHealth(value)
@@ -1266,15 +1313,24 @@ local minTempLim = 19  -- 19.0 C
 local function calcTemperature(value)
     return (value - minTempLim) / (maxTempLim - minTempLim)
 end
-local function getTemperature(isoPlayer, useRealValue) 
+local function getTemperature(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local bodyDmg = isoPlayer:getBodyDamage()
+    if not bodyDmg then return -1 end
+
+    local temperature = bodyDmg:getTemperature()
+    if isNaN(temperature) then
+        fixTemperature(isoPlayer, bodyDmg)
+        temperature = bodyDmg:getTemperature()
+    end
+
     if useRealValue then
-        return isoPlayer:getBodyDamage():getTemperature()
+        return temperature
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcTemperature( isoPlayer:getBodyDamage():getTemperature() )
-        end
+        return calcTemperature(temperature)
     end
 end
 
