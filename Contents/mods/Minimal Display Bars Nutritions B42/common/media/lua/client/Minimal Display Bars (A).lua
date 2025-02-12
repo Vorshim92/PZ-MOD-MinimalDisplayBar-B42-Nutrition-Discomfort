@@ -1034,6 +1034,16 @@ local function fixTemperature(isoPlayer,bodyDmg)
     end
 end
 
+local function fixThirst(isoStats)
+    if not isoStats then return end
+
+    -- Fix indumenti buggati
+    -- fixWornItems(isoPlayer)
+    isoStats:setThirst(0.0)
+end
+
+
+
 
 
 --==========================
@@ -1124,15 +1134,23 @@ end
 local function calcThirst(value)
     return 1 - value
 end
-local function getThirst(isoPlayer, useRealValue) 
+
+local function getThirst(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local isoStats = isoPlayer:getStats()
+    local thirst = isoStats:getThirst()
+    if thirst < 0 then
+        fixThirst(isoStats)
+        thirst = isoStats:getThirst()
+    end
+
     if useRealValue then
-        return isoPlayer:getStats():getThirst()
+        return thirst
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcThirst( isoPlayer:getStats():getThirst() )
-        end
+        return calcThirst(thirst)
     end
 end
 
