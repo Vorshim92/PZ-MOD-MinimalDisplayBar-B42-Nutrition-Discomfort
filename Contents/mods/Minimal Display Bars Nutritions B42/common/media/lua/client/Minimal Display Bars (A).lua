@@ -1644,7 +1644,7 @@ local function getMoodletThresholdTables()
         },
         ["discomfortlevel"] = {
             [1] = calcDiscomfortLevel(20), -- 20/100
-            [2] = calcDiscomfortLevel(45),
+            [2] = calcDiscomfortLevel(40),
             [3] = calcDiscomfortLevel(60),
             [4] = calcDiscomfortLevel(80),
         },

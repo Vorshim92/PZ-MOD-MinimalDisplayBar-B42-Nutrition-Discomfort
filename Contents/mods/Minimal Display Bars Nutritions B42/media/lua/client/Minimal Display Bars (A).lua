@@ -627,7 +627,7 @@ local DEFAULT_SETTINGS = {
         ["isIconRight"] = false,
     },
     ["hunger"] = {
-        ["x"] = 70 + 15,
+        ["x"] = 85,
         ["y"] = 30,
         ["width"] = 8,
         ["height"] = 150,
@@ -965,7 +965,33 @@ local DEFAULT_SETTINGS = {
         ["imageSize"] = 22,
         ["showImage"] = false,
         ["isIconRight"] = false,
-    }
+    },
+    ["sickness"] = {
+        ["x"] = 85 + (8 * 12),
+        ["y"] = 30,
+        ["width"] = 8,
+        ["height"] = 150,
+        ["l"] = 2,
+        ["t"] = 3,
+        ["r"] = 2,
+        ["b"] = 3,
+        ["color"] = {red = (150 / 255), 
+                    green = (255 / 255), 
+                    blue = (10 / 255), 
+                    alpha = 0.75},
+        ["isMovable"] = true,
+        ["isResizable"] = false,
+        ["isVisible"] = true,
+        ["isVertical"] = true,
+        ["alwaysBringToTop"] = false,
+        ["showMoodletThresholdLines"] = true,
+        ["isCompact"] = false,
+        ["imageShowBack"] = true,
+        ["imageName"] = "media/ui/Moodles/Moodle_Icon_Sick.png",
+        ["imageSize"] = 22,
+        ["showImage"] = false,
+        ["isIconRight"] = false,
+    },
         
     
 }
