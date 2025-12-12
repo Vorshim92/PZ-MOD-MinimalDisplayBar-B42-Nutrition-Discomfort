@@ -322,202 +322,6 @@ function ISGenericMiniDisplayBar:render()
         end
     end
 
-    if self.idName == "stress" then
-        if self.showImage and self.imageName then
-            if self.isVertical then
-                local w = self.imageSize or 22
-                local tex = getTexture(self.imageName)
-                if tex then
-                    local texH = tex:getHeightOrig()
-                    local texW = tex:getWidthOrig()
-                    local texLargeVal = texH > texW and texH or texW
-                    local texScale = w / texLargeVal
-                    local h = w
-                    local x = (-w * 0.5) + self:getWidth() * 0.5
-                    local y = -w
-                    if self.imageShowBack and self.texBG then
-                        self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
-                    end
-                    if w % 2 == 0 then
-                        x = x + 1
-                        y = y + 1
-                    else
-                        y = y + 1
-                    end
-                    self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
-                end
-            else
-                local h = self.imageSize or 22
-                local tex = getTexture(self.imageName)
-                if tex then
-                    local texH = tex:getHeightOrig()
-                    local texW = tex:getWidthOrig()
-                    local texLargeVal = texH > texW and texH or texW
-                    local texScale = h / texLargeVal
-                    local w = h
-                    local x = -h
-                    if self.isIconRight then
-                        x = self:getWidth() -- Sposto l'icona a destra
-                    end
-                    local y = (-h * 0.5) + self:getHeight() * 0.5
-                    if self.imageShowBack and self.texBG then
-                        self:drawTextureScaled(self.texBG, x, y, w, h, 1, 1, 1, 1)
-                    end
-                    if h % 2 == 0 then
-                        x = x + 1
-                        y = y + 1
-                    else
-                        y = y + 1
-                    end
-                    self:drawTextureScaledAspect(tex, x, y, w, h, 1, 1, 1, 1)
-                end
-            end
-        end
-        local totalValue = baseValue + (cigsValue or 0)
-        if totalValue > 1 then
-            totalValue = 1
-        end
-        if self.isVertical then
-            local totalHeight = math.floor(self.innerHeight * totalValue + 0.5)
-            local baseTop = self.borderSizes.t + (self.innerHeight - totalHeight)
-            
-            -- 1) Disegno la "total bar" in colore base (0..totalValue)
-            self:drawRectStatic(
-                self.borderSizes.l,
-                baseTop,
-                self.innerWidth,
-                totalHeight,
-                self.color.alpha,
-                self.color.red,
-                self.color.green,
-                self.color.blue
-            )
-            
-            -- 2) Disegno la parte cigs “sopra” (0..cigsValue)
-            local cigsHeight = math.floor(self.innerHeight * cigsValue + 0.5)
-            local cigsTop = baseTop + (totalHeight - cigsHeight)  -- inizio dal top del total
-            -- se vuoi che la parte cigs sia "sopra" in senso fisico, 
-            -- potresti fare cigsTop = baseTop + (totalHeight - cigsHeight)
-            -- dipende se consideri top = in alto o in basso.
-            
-            if cigsHeight > 0 and self.color.cigs then
-                self:drawRectStatic(
-                    self.borderSizes.l,
-                    cigsTop,
-                    self.innerWidth,
-                    cigsHeight,
-                    self.color.cigs.alpha,
-                    self.color.cigs.red,
-                    self.color.cigs.green,
-                    self.color.cigs.blue
-                )
-            end
-            
-        else
-            local totalWidth = math.floor(self.innerWidth * totalValue + 0.5)
-            local baseLeft = self.borderSizes.l
-            
-            -- 1) Tutta la parte base
-            self:drawRectStatic(
-                baseLeft,
-                self.borderSizes.t,
-                totalWidth,
-                self.innerHeight,
-                self.color.alpha,
-                self.color.red,
-                self.color.green,
-                self.color.blue
-            )
-            
-            -- 2) Sovrappongo la parte cigs
-            local cigsW = math.floor(self.innerWidth * cigsValue + 0.5)
-            local cigsLeft = baseLeft
-            -- se vuoi che appaia "alla destra" del base, puoi fare
-            -- cigsLeft = baseLeft + (totalWidth - cigsW)
-            
-            if cigsW > 0 and self.color.cigs then
-                self:drawRectStatic(
-                    cigsLeft,
-                    self.borderSizes.t,
-                    cigsW,
-                    self.innerHeight,
-                    self.color.cigs.alpha,
-                    self.color.cigs.red,
-                    self.color.cigs.green,
-                    self.color.cigs.blue
-                )
-            end
-        end
-        if self.showMoodletThresholdLines and self.moodletThresholdTable and type(self.moodletThresholdTable) == "table" then
-            local tv = baseValue + (cigsValue or 0)
-            if tv > 1 then
-                tv = 1
-            end
-            for k, v in pairs(self.moodletThresholdTable) do
-                local tColor = {red = 0, green = 0, blue = 0, alpha = self.color.alpha}
-                if tv < v then
-                    tColor.red = 1
-                    tColor.green = 1
-                    tColor.blue = 1
-                end
-                if self.isVertical then
-                    local lineWidth = self.innerWidth
-                    local lineHeight = 1
-                    local tX = self.borderSizes.l
-                    local tY = self.borderSizes.t + (self.innerHeight - math.floor((self.innerHeight * v) + 0.5))
-                    self:drawRectStatic(tX, tY, lineWidth, lineHeight, tColor.alpha, tColor.red, tColor.green, tColor.blue)
-                else
-                    local lineWidth = 1
-                    local lineHeight = self.innerHeight
-                    local tX = math.floor((self.innerWidth * v) + 0.5)
-                    local tY = self.borderSizes.t
-                    self:drawRectStatic(tX, tY, lineWidth, lineHeight, tColor.alpha, tColor.red, tColor.green, tColor.blue)
-                end
-            end
-        end
-        if self.moving or self.resizing or self.showTooltip then
-            local rb, rc = self.valueFunction.getValue(self.isoPlayer, true)
-            local totalReal = 0
-            if type(rb) == "number" and type(rc) == "number" then
-                totalReal = rb + rc
-            end
-            local xOff = 4
-            local yOff = 4
-            local boxWidth = 200
-            local boxHeight = getTextManager():getFontHeight(UIFont.Small) * 7
-            local core = getCore()
-            local tooltipTxt = getText("ContextMenu_MinimalDisplayBars_stress")
-            .. "\r\nstress ratio: " .. string.format("%.3f", baseValue)
-            .. "\r\nnicotine ratio: " .. string.format("%.3f", cigsValue or 0)
-            .. "\r\nTOTAL ratio: " .. string.format("%.3f", totalValue)
-            .. "\r\nstress real: " .. string.format("%.3f", rb or 0)
-            .. "\r\nnicotine real: " .. string.format("%.3f", rc or 0)
-            .. "\r\nTOTAL real: " .. string.format("%.3f", totalReal)
-            if core:getScreenWidth() < self:getX() + boxWidth + xOff then
-                xOff = xOff - xOff - boxWidth
-            end
-            if core:getScreenHeight() < self:getY() + boxHeight + yOff then
-                yOff = yOff - yOff - boxHeight
-            end
-            self:drawRectStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 0, 0, 0)
-            self:drawRectBorderStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff, boxWidth, boxHeight, 0.85, 1, 1, 1)
-            self:drawText(tooltipTxt, self.borderSizes.l + 2 + xOff, self.borderSizes.t + 2 + yOff, 1, 1, 1, 1, UIFont.Small)
-        end
-        if not self.moving and not ISGenericMiniDisplayBar.isEditing then
-            if self.oldX ~= self.x or self.oldY ~= self.y then
-                self.oldX = self.x
-                self.oldY = self.y
-                MinimalDisplayBars.configTables[self.coopNum][self.idName]["x"] = self.x - self.xOffset
-                MinimalDisplayBars.configTables[self.coopNum][self.idName]["y"] = self.y - self.yOffset
-                MinimalDisplayBars.io_persistence.store(self.fileSaveLocation, MinimalDisplayBars.MOD_ID, MinimalDisplayBars.configTables[self.coopNum])
-            end
-        end
-        if self.alwaysBringToTop and (ISGenericMiniDisplayBar.alwaysBringToTop or self.idName == "menu") then
-            self:bringToTop()
-        end
-        return panel
-    end
-
     local value = baseValue
     local innerWidth = 0
     local innerHeight = 0
@@ -657,13 +461,31 @@ function ISGenericMiniDisplayBar:render()
             end
             boxHeight = boxHeight - getTextManager():getFontHeight(UIFont.Small) * 2
         else
-            tooltipTxt = getText("ContextMenu_MinimalDisplayBars_" .. self.idName)
-            .. " \r\nratio: " .. string.format("%.4g", value)
-            .. " \r\nreal value: " .. realValue
-            .. "\r\n"
-            .. "\r\n" .. tutorialLeftClick
-            .. "\r\n" .. tutorialRightClick
-            .. "\r\n"
+            -- Controlla se è la barra stress e ha valori multipli
+            if self.idName == "stress" then
+                local rb, rc = self.valueFunction.getValue(self.isoPlayer, true)
+                local totalReal = (rb or 0) + (rc or 0)
+
+                tooltipTxt = getText("ContextMenu_MinimalDisplayBars_stress")
+                .. " \r\nBase Stress: " .. string.format("%.3f", rb or 0)
+                .. " \r\nNicotine Withdrawal: " .. string.format("%.3f", rc or 0)
+                .. " \r\nTotal: " .. string.format("%.3f", totalReal)
+                .. " \r\n(clamped to 1.0 on bar)"
+                .. "\r\n"
+                .. "\r\n" .. tutorialLeftClick
+                .. "\r\n" .. tutorialRightClick
+                .. "\r\n"
+            else
+                -- Tooltip normale per altre barre
+                tooltipTxt = getText("ContextMenu_MinimalDisplayBars_" .. self.idName)
+                .. " \r\nratio: " .. string.format("%.4g", value)
+                .. " \r\nreal value: " .. realValue
+                .. "\r\n"
+                .. "\r\n" .. tutorialLeftClick
+                .. "\r\n" .. tutorialRightClick
+                .. "\r\n"
+            end
+
             if self.moving then
                 tooltipTxt = tooltipTxt .. "\r\nx: " .. self.x .. "\r\ny: " .. self.y
                 boxHeight = boxHeight + getTextManager():getFontHeight(UIFont.Small) * 3

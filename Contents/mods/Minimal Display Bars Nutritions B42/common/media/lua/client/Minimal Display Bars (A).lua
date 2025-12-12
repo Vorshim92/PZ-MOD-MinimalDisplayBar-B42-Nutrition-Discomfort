@@ -792,16 +792,10 @@ local DEFAULT_SETTINGS = {
         ["r"] = 2,
         ["b"] = 3,
         ["color"] = {
-            red = (255 / 255),      -- Rosso per stress base
+            red = (255 / 255),
             green = (0 / 255),
             blue = (0 / 255),
             alpha = 0.75,
-            cigs = {                -- Arancione/giallo per nicotine withdrawal
-                red = 1.0,
-                green = 0.8,
-                blue = 0.0,
-                alpha = 0.75
-            }
         },
         ["isMovable"] = true,
         ["isResizable"] = false,
@@ -1346,43 +1340,27 @@ end
 
 local function getStress(isoPlayer, useRealValue)
     if not isoPlayer or isoPlayer:isDead() then
-        return -1, -1  -- DUE VALORI per consistenza
+        return -1  -- Singolo valore
     end
 
     local stats = isoPlayer:getStats()
 
-    -- local nicotineStress = stats:getNicotineStress() -- clamped version for stress including nicotine withdrawal
-    -- Otteniamo i due componenti separati
-    local baseStress = stats:get(CharacterStat.STRESS)           -- Stress puro
-    local nicotineWithdrawal = stats:get(CharacterStat.NICOTINE_WITHDRAWAL)  -- Astinenza da nicotina
-
     if useRealValue then
-        -- Restituiamo i valori reali separati
-        return baseStress, nicotineWithdrawal
+        -- Per tooltip: restituisce i valori RAW separati (stress base, nicotina)
+        local base = stats:get(CharacterStat.STRESS)
+        local nico = stats:get(CharacterStat.NICOTINE_WITHDRAWAL)
+        return base, nico  -- DUE valori raw
     else
-        -- Calcoliamo i ratio normalizzati
-        local baseStressRatio = calcStress(baseStress, 1.0)
-        local nicotineRatio = nicotineWithdrawal / 0.51  -- Max NICOTINE_WITHDRAWAL è 0.51
-
-        return baseStressRatio, nicotineRatio
+        -- Per rendering: restituisce la SOMMA clampata a 1.0
+        local totalStress = stats:getNicotineStress()  -- Già clampato a 1.0 dal gioco
+        return calcStress(totalStress, 1.0)  -- Normalizza 0-1
     end
 end
 
 local function getColorStress(isoPlayer)
-    local color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
-
-    -- Assicuriamoci che color.cigs esista per il secondo rettangolo (nicotine)
-    if not color.cigs then
-        -- Creare un colore di default per nicotine withdrawal (es. giallo/arancione)
-        color.cigs = {
-            red = 1.0,
-            green = 0.8,
-            blue = 0.0,
-            alpha = 0.75
-        }
-    end
-
-    return color
+    -- Restituisce solo il colore ROSSO base (niente interpolazione, niente arancione)
+    local baseColor = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
+    return baseColor
 end
 
 

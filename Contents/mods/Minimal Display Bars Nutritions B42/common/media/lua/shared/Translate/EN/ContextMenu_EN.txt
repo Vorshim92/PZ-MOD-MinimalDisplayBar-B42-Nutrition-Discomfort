@@ -49,7 +49,8 @@ ContextMenu_EN = {
     ContextMenu_MinimalDisplayBars_discomfortlevel = "Discomfort Level",
     ContextMenu_MinimalDisplayBars_stress = "Stress",
     ContextMenu_MinimalDisplayBars_sickness = "Sickness",
-    
+    ContextMenu_MinimalDisplayBars_wetness = "Wetness",
+
     -- UI
     ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "Left Click Hold + Drag to move.",
     ContextMenu_MinimalDisplayBars_Tutorial_RightClick = "Right Click for more options.",

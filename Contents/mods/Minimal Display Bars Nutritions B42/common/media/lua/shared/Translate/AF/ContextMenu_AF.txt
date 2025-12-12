@@ -33,13 +33,14 @@ ContextMenu_AF = {
     ContextMenu_MinimalDisplayBars_hp = "Gesondheid",
     ContextMenu_MinimalDisplayBars_hunger = "Honger",
     ContextMenu_MinimalDisplayBars_thirst = "Dors",
-    ContextMenu_MinimalDisplayBars_endurance = "Uithouvermoë",
+    ContextMenu_MinimalDisplayBars_endurance = "Uithouvermoï¿½",
     ContextMenu_MinimalDisplayBars_fatigue = "Moegheid",
     ContextMenu_MinimalDisplayBars_boredomlevel = "Verveeldheid Vlak",
     ContextMenu_MinimalDisplayBars_unhappynesslevel = "Ongelukkigheid Vlak",
     ContextMenu_MinimalDisplayBars_temperature = "Temperatuur",
-    ContextMenu_MinimalDisplayBars_calorie = "Kalorieë",
-    
+    ContextMenu_MinimalDisplayBars_calorie = "Kalorieï¿½",
+    ContextMenu_MinimalDisplayBars_wetness = "Natheid",
+
     -- UI
     ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "Links klik, hou en sleep om te skuif.",
     ContextMenu_MinimalDisplayBars_Tutorial_RightClick = "Regsklik vir meer opsies.",

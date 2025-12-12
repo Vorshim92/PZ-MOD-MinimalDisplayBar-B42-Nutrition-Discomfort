@@ -47,8 +47,9 @@ ContextMenu_IT = {
 	ContextMenu_MinimalDisplayBars_lipids = "Grassi",
     ContextMenu_MinimalDisplayBars_discomfortlevel = "Livello di Disagio",
     ContextMenu_MinimalDisplayBars_stress = "Stress",
+    ContextMenu_MinimalDisplayBars_sickness = "Malattia",
+    ContextMenu_MinimalDisplayBars_wetness = "Umidità",
 
-    
     -- UI
     ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "Fai clic con il tasto sinistro del mouse + trascina per spostare.",
     ContextMenu_MinimalDisplayBars_Tutorial_RightClick = "Fare clic con il tasto destro per ulteriori opzioni.",
