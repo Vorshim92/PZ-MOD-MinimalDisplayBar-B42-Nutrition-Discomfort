@@ -174,11 +174,11 @@ ISGenericMiniDisplayBar.chevronUpBorder = Texture.getSharedTexture("media/ui/Moo
 ISGenericMiniDisplayBar.chevronDown = Texture.getSharedTexture("media/ui/Moodle_chevron_down.png");
 ISGenericMiniDisplayBar.chevronDownBorder = Texture.getSharedTexture("media/ui/Moodle_chevron_down_border.png");
 --]]
-function ISGenericMiniDisplayBar:getImageBG(isoPlayer, index)
-    
+function ISGenericMiniDisplayBar:getImageBG(isoPlayer, moodleType)
+
     local moodles = isoPlayer:getMoodles()
-    local goodBadNeutral = moodles:getGoodBadNeutral(index)
-    local moodleLevel = moodles:getMoodleLevel(index)
+    local goodBadNeutral = moodles:getGoodBadNeutral(moodleType)
+    local moodleLevel = moodles:getMoodleLevel(moodleType)
     
     local switchA = 
     {
@@ -299,41 +299,26 @@ function ISGenericMiniDisplayBar:render()
     end
 
     if self.imageShowBack then
-        local switchMoodle = {
-            ["hunger"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hungry")))
-            end,
-            ["thirst"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Thirst")))
-            end,
-            ["endurance"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Endurance")))
-            end,
-            ["fatigue"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Tired")))
-            end,
-            ["boredomlevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Bored")))
-            end,
-            ["unhappynesslevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Unhappy")))
-            end,
-            ["stress"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Stress")))
-            end,
-            ["discomfortlevel"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Uncomfortable")))
-            end,
-            ["temperature"] = function()
-                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hyperthermia")))
-                if not self.texBG then
-                    self.texBG = self:getImageBG(self.isoPlayer, MoodleType.ToIndex(MoodleType.FromString("Hypothermia")))
-                end
-            end
+        local moodleTypeMap = {
+            ["hunger"] = MoodleType.HUNGRY,
+            ["thirst"] = MoodleType.THIRST,
+            ["endurance"] = MoodleType.ENDURANCE,
+            ["fatigue"] = MoodleType.TIRED,
+            ["boredomlevel"] = MoodleType.BORED,
+            ["unhappynesslevel"] = MoodleType.UNHAPPY,
+            ["stress"] = MoodleType.STRESS,
+            ["discomfortlevel"] = MoodleType.UNCOMFORTABLE,
+            ["temperature"] = MoodleType.HYPERTHERMIA  -- Default
         }
-        local switchFunc = switchMoodle[self.idName]
-        if switchFunc then
-            switchFunc()
+
+        local moodleType = moodleTypeMap[self.idName]
+        if moodleType then
+            self.texBG = self:getImageBG(self.isoPlayer, moodleType)
+
+            -- Temperature ha due background possibili
+            if self.idName == "temperature" and not self.texBG then
+                self.texBG = self:getImageBG(self.isoPlayer, MoodleType.HYPOTHERMIA)
+            end
         end
     end
 
@@ -502,11 +487,11 @@ function ISGenericMiniDisplayBar:render()
             local boxHeight = getTextManager():getFontHeight(UIFont.Small) * 7
             local core = getCore()
             local tooltipTxt = getText("ContextMenu_MinimalDisplayBars_stress")
-            .. "\r\nbase ratio: " .. string.format("%.3f", baseValue)
-            .. "\r\ncigs ratio: " .. string.format("%.3f", cigsValue or 0)
+            .. "\r\nstress ratio: " .. string.format("%.3f", baseValue)
+            .. "\r\nnicotine ratio: " .. string.format("%.3f", cigsValue or 0)
             .. "\r\nTOTAL ratio: " .. string.format("%.3f", totalValue)
-            .. "\r\nbase real: " .. string.format("%.3f", rb or 0)
-            .. "\r\ncigs real: " .. string.format("%.3f", rc or 0)
+            .. "\r\nstress real: " .. string.format("%.3f", rb or 0)
+            .. "\r\nnicotine real: " .. string.format("%.3f", rc or 0)
             .. "\r\nTOTAL real: " .. string.format("%.3f", totalReal)
             if core:getScreenWidth() < self:getX() + boxWidth + xOff then
                 xOff = xOff - xOff - boxWidth

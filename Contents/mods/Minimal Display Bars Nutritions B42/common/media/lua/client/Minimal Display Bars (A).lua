@@ -791,10 +791,18 @@ local DEFAULT_SETTINGS = {
         ["t"] = 3,
         ["r"] = 2,
         ["b"] = 3,
-        ["color"] = {red = (200 / 255), 
-                    green = (0 / 255), 
-                    blue = (100 / 255), 
-                    alpha = 0.75},
+        ["color"] = {
+            red = (255 / 255),      -- Rosso per stress base
+            green = (0 / 255),
+            blue = (0 / 255),
+            alpha = 0.75,
+            cigs = {                -- Arancione/giallo per nicotine withdrawal
+                red = 1.0,
+                green = 0.8,
+                blue = 0.0,
+                alpha = 0.75
+            }
+        },
         ["isMovable"] = true,
         ["isResizable"] = false,
         ["isVisible"] = true,
@@ -1338,21 +1346,42 @@ end
 
 local function getStress(isoPlayer, useRealValue)
     if not isoPlayer or isoPlayer:isDead() then
-        return -1
+        return -1, -1  -- DUE VALORI per consistenza
     end
 
     local stats = isoPlayer:getStats()
-    local nicotineStress = stats:getNicotineStress()
+
+    -- local nicotineStress = stats:getNicotineStress() -- clamped version for stress including nicotine withdrawal
+    -- Otteniamo i due componenti separati
+    local baseStress = stats:get(CharacterStat.STRESS)           -- Stress puro
+    local nicotineWithdrawal = stats:get(CharacterStat.NICOTINE_WITHDRAWAL)  -- Astinenza da nicotina
 
     if useRealValue then
-        return nicotineStress
+        -- Restituiamo i valori reali separati
+        return baseStress, nicotineWithdrawal
     else
-        return calcStress(nicotineStress, 1.0)
+        -- Calcoliamo i ratio normalizzati
+        local baseStressRatio = calcStress(baseStress, 1.0)
+        local nicotineRatio = nicotineWithdrawal / 0.51  -- Max NICOTINE_WITHDRAWAL è 0.51
+
+        return baseStressRatio, nicotineRatio
     end
 end
 
 local function getColorStress(isoPlayer)
     local color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
+
+    -- Assicuriamoci che color.cigs esista per il secondo rettangolo (nicotine)
+    if not color.cigs then
+        -- Creare un colore di default per nicotine withdrawal (es. giallo/arancione)
+        color.cigs = {
+            red = 1.0,
+            green = 0.8,
+            blue = 0.0,
+            alpha = 0.75
+        }
+    end
+
     return color
 end
 
