@@ -973,9 +973,9 @@ local DEFAULT_SETTINGS = {
         ["t"] = 3,
         ["r"] = 2,
         ["b"] = 3,
-        ["color"] = {red = (150 / 255), 
-                    green = (255 / 255), 
-                    blue = (10 / 255), 
+        ["color"] = {red = (150 / 255),
+                    green = (255 / 255),
+                    blue = (10 / 255),
                     alpha = 0.75},
         ["isMovable"] = true,
         ["isResizable"] = false,
@@ -989,7 +989,33 @@ local DEFAULT_SETTINGS = {
         ["imageSize"] = 22,
         ["showImage"] = false,
         ["isIconRight"] = false,
-    }, 
+    },
+    ["wetness"] = {
+        ["x"] = 85 + (8 * 13),
+        ["y"] = 30,
+        ["width"] = 8,
+        ["height"] = 150,
+        ["l"] = 2,
+        ["t"] = 3,
+        ["r"] = 2,
+        ["b"] = 3,
+        ["color"] = {red = (100 / 255),
+                    green = (150 / 255),
+                    blue = (255 / 255),
+                    alpha = 0.75},
+        ["isMovable"] = true,
+        ["isResizable"] = false,
+        ["isVisible"] = true,
+        ["isVertical"] = true,
+        ["alwaysBringToTop"] = false,
+        ["showMoodletThresholdLines"] = true,
+        ["isCompact"] = false,
+        ["imageShowBack"] = true,
+        ["imageName"] = "media/ui/Moodles/Moodle_Icon_Wet.png",
+        ["imageSize"] = 22,
+        ["showImage"] = false,
+        ["isIconRight"] = false,
+    },
 }
 
 --Presets
@@ -1043,18 +1069,16 @@ local function fixWornItems(isoPlayer)
     end
 end
 
-local function fixTemperature(isoPlayer,bodyDmg)
-    if not bodyDmg or not isoPlayer then return end
+local function fixTemperature(isoPlayer)
+    if not isoPlayer then return end
 
     -- Fix indumenti buggati
     fixWornItems(isoPlayer)
 
-    -- Reset della temperatura corporea
-    local therm = bodyDmg:getThermoregulator()
-    bodyDmg:setWetness(0.0)
-    bodyDmg:setTemperature(37.0)
-    if therm then
-        therm:reset()
+    -- Reset della temperatura corporea usando CharacterStat
+    local stats = isoPlayer:getStats()
+    if stats then
+        stats:set(CharacterStat.TEMPERATURE, 37.0)
     end
 end
 
@@ -1063,7 +1087,7 @@ local function fixThirst(isoStats)
 
     -- Fix indumenti buggati
     -- fixWornItems(isoPlayer)
-    isoStats:setThirst(0.0)
+    isoStats:set(CharacterStat.THIRST, 0.0)
 end
 
 local function fixCalories(nutrition)
@@ -1156,15 +1180,18 @@ end
 local function calcHunger(value)
     return 1 - value
 end
-local function getHunger(isoPlayer, useRealValue) 
+local function getHunger(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local hunger = stats:get(CharacterStat.HUNGER)
+
     if useRealValue then
-        return isoPlayer:getStats():getHunger()
+        return hunger
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcHunger( isoPlayer:getStats():getHunger() )
-        end
+        return calcHunger(hunger)
     end
 end
 
@@ -1178,15 +1205,18 @@ end
 local function calcSickness(value)
     return value
 end
-local function getSickness(isoPlayer, useRealValue) 
+local function getSickness(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local sickness = stats:get(CharacterStat.SICKNESS)
+
     if useRealValue then
-        return isoPlayer:getStats():getSickness()
+        return sickness
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcSickness( isoPlayer:getStats():getSickness() )
-        end
+        return calcSickness(sickness)
     end
 end
 
@@ -1206,11 +1236,11 @@ local function getThirst(isoPlayer, useRealValue)
         return -1
     end
 
-    local isoStats = isoPlayer:getStats()
-    local thirst = isoStats:getThirst()
+    local stats = isoPlayer:getStats()
+    local thirst = stats:get(CharacterStat.THIRST)
     if isNaN(thirst) or thirst < 0 then
-        fixThirst(isoStats)
-        thirst = isoStats:getThirst()
+        fixThirst(stats)
+        thirst = stats:get(CharacterStat.THIRST)
     end
 
     if useRealValue then
@@ -1230,15 +1260,18 @@ end
 local function calcEndurance(value)
     return value
 end
-local function getEndurance(isoPlayer, useRealValue) 
+local function getEndurance(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local endurance = stats:get(CharacterStat.ENDURANCE)
+
     if useRealValue then
-        return isoPlayer:getStats():getEndurance()
+        return endurance
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcEndurance( isoPlayer:getStats():getEndurance() )
-        end
+        return calcEndurance(endurance)
     end
 end
 
@@ -1252,15 +1285,18 @@ end
 local function calcFatigue(value)
     return value
 end
-local function getFatigue(isoPlayer, useRealValue) 
+local function getFatigue(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local fatigue = stats:get(CharacterStat.FATIGUE)
+
     if useRealValue then
-        return isoPlayer:getStats():getFatigue()
+        return fatigue
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcFatigue( isoPlayer:getStats():getFatigue() )
-        end
+        return calcFatigue(fatigue)
     end
 end
 
@@ -1275,14 +1311,17 @@ local function calcBoredomLevel(value)
     return value / 100
 end
 local function getBoredomLevel(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local boredom = stats:get(CharacterStat.BOREDOM)
+
     if useRealValue then
-        return isoPlayer:getBodyDamage():getBoredomLevel()
+        return boredom
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcBoredomLevel( isoPlayer:getBodyDamage():getBoredomLevel() )
-        end
+        return calcBoredomLevel(boredom)
     end
 end
 
@@ -1293,54 +1332,27 @@ local function getColorBoredomLevel(isoPlayer, useRealValue)
 end
 
 -- Stress Functions
-local function getCigStress(isoPlayer)
-    return isoPlayer:getStats():getStressFromCigarettes()
-end
-
-local function getBaseStress(isoPlayer)
-    -- Stress base = (stress totale) - (stress cigs)
-    local cigStress = getCigStress(isoPlayer)
-    return isoPlayer:getStats():getStress() - cigStress
-end
-
-local maxStress = 1
-local function getMaxCigStress(isoPlayer)
-    return isoPlayer:getStats():getMaxStressFromCigarettes()
-end
-
 local function calcStress(value, maxValue)
     return value / maxValue
 end
 
 local function getStress(isoPlayer, useRealValue)
-    local maxCigaretStress = getMaxCigStress(isoPlayer)
-    local baseStress = getBaseStress(isoPlayer)
-    local cigsStress = getCigStress(isoPlayer)
-    if isoPlayer:isDead() then
-        return -1, -1
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
     end
+
+    local stats = isoPlayer:getStats()
+    local nicotineStress = stats:getNicotineStress()
 
     if useRealValue then
-        return baseStress, cigsStress
+        return nicotineStress
     else
-        baseStress = calcStress(baseStress, maxStress+maxCigaretStress) 
-        cigsStress = calcStress(cigsStress, maxStress+maxCigaretStress)
-        return baseStress, cigsStress
+        return calcStress(nicotineStress, 1.0)
     end
-
 end
 
 local function getColorStress(isoPlayer)
-    -- Il colore “base” che hai definito in configTables
     local color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["stress"]["color"]
-
-    color.cigs = {
-        red   = math.min(1, 1.5 * color.red),
-        green = math.min(1, 1.5 * color.green),
-        blue  = math.min(1, 1.5 * color.blue),
-        alpha = 0.75
-    }
-
     return color
 end
 
@@ -1350,15 +1362,18 @@ local function calcUnhappynessLevel(value)
     --print(value)
     return value / 100
 end
-local function getUnhappynessLevel(isoPlayer, useRealValue) 
+local function getUnhappynessLevel(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local unhappiness = stats:get(CharacterStat.UNHAPPINESS)
+
     if useRealValue then
-        return isoPlayer:getBodyDamage():getUnhappynessLevel()
+        return unhappiness
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcUnhappynessLevel( isoPlayer:getBodyDamage():getUnhappynessLevel() )
-        end
+        return calcUnhappynessLevel(unhappiness)
     end
 end
 
@@ -1373,15 +1388,18 @@ local function calcDiscomfortLevel(value)
     --print(value)
     return value / 100
 end
-local function getDiscomfortLevel(isoPlayer, useRealValue) 
+local function getDiscomfortLevel(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local discomfort = stats:get(CharacterStat.DISCOMFORT)
+
     if useRealValue then
-        return isoPlayer:getBodyDamage():getDiscomfortLevel()
+        return discomfort
     else
-        if isoPlayer:isDead() then
-            return -1
-        else
-            return calcDiscomfortLevel( isoPlayer:getBodyDamage():getDiscomfortLevel() )
-        end
+        return calcDiscomfortLevel(discomfort)
     end
 end
 
@@ -1392,8 +1410,8 @@ local function getColorDiscomfortLevel(isoPlayer)
 end
 
 -- Temperature Functions
-local maxTempLim = 41  -- 41.0 C
-local minTempLim = 19  -- 19.0 C
+local maxTempLim = 40  -- 40.0 C (updated for b42.13)
+local minTempLim = 20  -- 20.0 C (updated for b42.13)
 local function calcTemperature(value)
     return (value - minTempLim) / (maxTempLim - minTempLim)
 end
@@ -1402,13 +1420,11 @@ local function getTemperature(isoPlayer, useRealValue)
         return -1
     end
 
-    local bodyDmg = isoPlayer:getBodyDamage()
-    if not bodyDmg then return -1 end
-
-    local temperature = bodyDmg:getTemperature()
+    local stats = isoPlayer:getStats()
+    local temperature = stats:get(CharacterStat.TEMPERATURE)
     if isNaN(temperature) then
-        fixTemperature(isoPlayer, bodyDmg)
-        temperature = bodyDmg:getTemperature()
+        fixTemperature(isoPlayer)
+        temperature = stats:get(CharacterStat.TEMPERATURE)
     end
 
     if useRealValue then
@@ -1485,11 +1501,37 @@ local function getCalorie(isoPlayer, useRealValue)
     end
 end
 
-local function getColorCalorie(isoPlayer) 
+local function getColorCalorie(isoPlayer)
     local color
     color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["calorie"]["color"]
     return color
 end
+
+-- Wetness Functions
+local function calcWetness(value)
+    return value / 100
+end
+
+local function getWetness(isoPlayer, useRealValue)
+    if not isoPlayer or isoPlayer:isDead() then
+        return -1
+    end
+
+    local stats = isoPlayer:getStats()
+    local wetness = stats:get(CharacterStat.WETNESS)
+
+    if useRealValue then
+        return wetness
+    else
+        return calcWetness(wetness)
+    end
+end
+
+local function getColorWetness(isoPlayer)
+    local color = MinimalDisplayBars.configTables[isoPlayer:getPlayerNum() + 1]["wetness"]["color"]
+    return color
+end
+
 -- Carbohydrates Functions
 local maxCarbohydrates = 1000  -- 1000F Carbohydrates
 local minCarbohydrates = -500  -- -5000 Carbohydrates
@@ -1647,11 +1689,17 @@ local function getMoodletThresholdTables()
             [4] = calcDiscomfortLevel(80),
         },
         ["temperature"] = {
-            [1] = calcTemperature(30.0), -- 30.0 C (MIN: 19.0 C, MAX: 41.0 C)
+            [1] = calcTemperature(30.0), -- 30.0 C (MIN: 20.0 C, MAX: 40.0 C)
             [2] = calcTemperature(25.0),
             [3] = calcTemperature(36.5),
             [4] = calcTemperature(37.5),
             [5] = calcTemperature(39.0),
+        },
+        ["wetness"] = {
+            [1] = calcWetness(25), -- 25/100
+            [2] = calcWetness(50),
+            [3] = calcWetness(75),
+            [4] = calcWetness(90),
         },
         -- ["proteins"] = {
         --     [1] = calcProteins(-500), -- < -300
@@ -1662,7 +1710,7 @@ local function getMoodletThresholdTables()
         --     [6] = calcProteins(150), -- 150 - 250
         --     [7] = calcProteins(250), -- 250 - 300
         --     [8] = calcProteins(300), -- > 300
-        -- }, 
+        -- },
     }
     
     return t
@@ -3267,20 +3315,34 @@ local function createUiFor(playerIndex, isoPlayer)
     
     local idName16 = "sickness"
     local bar16 = ISGenericMiniDisplayBar:new(
-        idName16, 
-        MinimalDisplayBars.configFileLocations[coopNum], 
-        playerIndex, isoPlayer, coopNum, 
-        MinimalDisplayBars.configTables[coopNum], 
-        xOffset, yOffset, 
-        nil, 
+        idName16,
+        MinimalDisplayBars.configFileLocations[coopNum],
+        playerIndex, isoPlayer, coopNum,
+        MinimalDisplayBars.configTables[coopNum],
+        xOffset, yOffset,
+        nil,
         getSickness,
         getColorSickness, true,
         moodletThresholdTables[idName16])
     bar16:initialise()
-    bar16:addToUIManager()   
-    
+    bar16:addToUIManager()
+
+    local idName17 = "wetness"
+    local bar17 = ISGenericMiniDisplayBar:new(
+        idName17,
+        MinimalDisplayBars.configFileLocations[coopNum],
+        playerIndex, isoPlayer, coopNum,
+        MinimalDisplayBars.configTables[coopNum],
+        xOffset, yOffset,
+        nil,
+        getWetness,
+        getColorWetness, true,
+        moodletThresholdTables[idName17])
+    bar17:initialise()
+    bar17:addToUIManager()
+
     -- Add all valid display bars to a Global varible to be shared.
-    MinimalDisplayBars.displayBars[playerIndex] = 
+    MinimalDisplayBars.displayBars[playerIndex] =
     {
         [idName2] = bar2,
         [idName3] = bar3,
@@ -3297,6 +3359,7 @@ local function createUiFor(playerIndex, isoPlayer)
         [idName14] = bar14,
         [idName15] = bar15,
         [idName16] = bar16,
+        [idName17] = bar17,
     }
     
     ------------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 {
-  "Lua.workspace.library": ["${addons}/umbrella/module/library"],
+  "Lua.workspace.library": ["${addons}/umbrella-unstable/module/library"],
   "Lua.runtime.path": ["?.lua", "?/init.lua", "server/?.lua"],
   "Lua.completion.requireSeparator": "/",
   "Lua.workspace.preloadFileSize": 800,
+  "Lua.workspace.checkThirdParty": false,
   "Lua.runtime.builtin": {
     "debug": "disable",
     "io": "disable",
     "package": "disable"
-  },
-  "Lua.workspace.checkThirdParty": false
+  }
 }
