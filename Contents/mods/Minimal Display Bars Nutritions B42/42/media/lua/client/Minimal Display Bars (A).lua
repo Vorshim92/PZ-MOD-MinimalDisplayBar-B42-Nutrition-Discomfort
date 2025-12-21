@@ -2881,33 +2881,69 @@ local function OnBootGame()
 end
 
 -- added for split-screen support
-local function OnLocalPlayerDisconnect(isoPlayer)
-    if getPlayer():isLocalPlayer() then
-    
-        --[[numOfLocalClients = numOfLocalClients - 1
-        if numOfLocalClients < 0 then 
-            numOfLocalClients = 0 
-        end]]
-        
+-- OnDisconnect fires when disconnected from server (all local players exit)
+local function OnLocalPlayerDisconnect()
+    -- 1. Close and cleanup properties panel if open
+    if MinimalDisplayBars.displayBarPropertiesPanel then
+        MinimalDisplayBars.displayBarPropertiesPanel:close()
+        MinimalDisplayBars.displayBarPropertiesPanel = nil
+    end
+
+    -- 2. Remove all display bars from UIManager
+    for playerIdx = 1, 4 do
+        if MinimalDisplayBars.displayBars[playerIdx] then
+            for _, bar in pairs(MinimalDisplayBars.displayBars[playerIdx]) do
+                if bar then
+                    if bar.parent then
+                        bar.parent:removeFromUIManager()
+                        bar.parent = nil
+                    end
+                    bar:removeFromUIManager()
+                end
+            end
+        end
+    end
+
+    -- 3. Clear all state tables
+    MinimalDisplayBars.displayBars = {}
+    MinimalDisplayBars.configTables = {}
+    MinimalDisplayBars.configFileLocations = {}
+    playerIndices = {}
+end
+
+-- added for split-screen support
+-- OnPlayerDeath fires when a local player dies (receives isoPlayer)
+local function OnLocalPlayerDeath(isoPlayer)
+    if isoPlayer and isoPlayer:isLocalPlayer() then
+        local playerIdx = isoPlayer:getPlayerNum() + 1
+
+        -- 1. Remove this player's bars from UIManager
+        if MinimalDisplayBars.displayBars[playerIdx] then
+            for _, bar in pairs(MinimalDisplayBars.displayBars[playerIdx]) do
+                if bar then
+                    if bar.parent then
+                        bar.parent:removeFromUIManager()
+                        bar.parent = nil
+                    end
+                    bar:removeFromUIManager()
+                end
+            end
+            MinimalDisplayBars.displayBars[playerIdx] = nil
+        end
+
+        -- 2. Clear state for this player only
+        MinimalDisplayBars.configTables[playerIdx] = nil
+        MinimalDisplayBars.configFileLocations[playerIdx] = nil
+
+        -- 3. Remove from playerIndices
         for k, v in pairs(playerIndices) do
-            if playerIndices[k] == isoPlayer:getPlayerNum() + 1 then
+            if playerIndices[k] == playerIdx then
                 table.remove(playerIndices, k)
                 break
             end
         end
-        
     end
 end
-
--- added for split-screen support
---[[local function OnLocalPlayerDeath(isoPlayer)
-    if isoPlayer:isLocalPlayer() then
-        numOfLocalClients = numOfLocalClients - 1
-        if numOfLocalClients < 0 then 
-            numOfLocalClients = 0 
-        end
-    end
-end]]
 
 
 -- Give default settings to config opts.
@@ -3381,7 +3417,7 @@ Events.OnRenderTick.Add(preventContextCoverup)
 
 Events.OnGameBoot.Add(OnBootGame)
 Events.OnDisconnect.Add(OnLocalPlayerDisconnect)
---Events.OnPlayerDeath.Add(OnLocalPlayerDeath)
+Events.OnPlayerDeath.Add(OnLocalPlayerDeath)
 
 Events.OnCreatePlayer.Add(createUiFor)
 
