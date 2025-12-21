@@ -2931,11 +2931,11 @@ local function OnLocalPlayerDeath(isoPlayer)
             MinimalDisplayBars.displayBars[playerIdx] = nil
         end
 
-        -- 2. Clear state for this player only
-        MinimalDisplayBars.configTables[playerIdx] = nil
-        MinimalDisplayBars.configFileLocations[playerIdx] = nil
+        -- NOTE: Do NOT clear configTables/configFileLocations here!
+        -- The render loop may still access them before bars are fully removed.
+        -- They will be reused or reloaded on respawn.
 
-        -- 3. Remove from playerIndices
+        -- 2. Remove from playerIndices
         for k, v in pairs(playerIndices) do
             if playerIndices[k] == playerIdx then
                 table.remove(playerIndices, k)
