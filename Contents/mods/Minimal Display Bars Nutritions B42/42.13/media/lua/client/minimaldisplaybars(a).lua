@@ -1021,10 +1021,10 @@ local DEFAULT_SETTINGS = {
 }
 
 --Presets
-local MrX_Settings = require('Presets/MDB_Preset_MrX')
-local Ann_Settings = require('Presets/MDB_Preset_Ann')
-local Kughi_Settings = require('Presets/MDB_Preset_Kughi')
-local Sebo_Settings = require('Presets/MDB_Preset_Sebo')
+local MrX_Settings = require('presets/mdb_preset_mrx')
+local Ann_Settings = require('presets/mdb_preset_ann')
+local Kughi_Settings = require('presets/mdb_preset_kughi')
+local Sebo_Settings = require('presets/mdb_preset_sebo')
 
 local PRESETS = {
     ["MrX"] = MrX_Settings,

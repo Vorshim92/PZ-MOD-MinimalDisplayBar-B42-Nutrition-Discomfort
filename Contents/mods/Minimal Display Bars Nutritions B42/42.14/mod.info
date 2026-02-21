@@ -1,0 +1,6 @@
+name=Minimal Display Bars + Nutritions + Discomfort [B42]
+id=MinimalDisplayBarsNutritionsB42
+description=Status bars with bar and circular styles. Supports: Health, Hunger, Thirst, Endurance, Fatigue, Boredom, Stress, Unhappiness, Discomfort, Temperature, Calories, Carbohydrates, Proteins, Lipids, Sickness, Wetness.
+poster=poster.png
+icon=modicon.png
+versionMin=42.14

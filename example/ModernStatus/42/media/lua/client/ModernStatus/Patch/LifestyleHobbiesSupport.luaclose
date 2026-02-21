@@ -1,0 +1,191 @@
+require "ModernStatus/MS_StatusIndicator"
+
+local isInitialized = false
+local _isLifestyleHobbiesModActive = nil
+
+local function detectLifestyleHobbiesMod()
+    if _isLifestyleHobbiesModActive ~= nil then
+        return _isLifestyleHobbiesModActive
+    end
+    
+    local activatedMods = getActivatedMods()
+    for i=0, activatedMods:size()-1 do
+        local modName = activatedMods:get(i)
+        if string.find(string.lower(modName), "lifestyle") then
+            _isLifestyleHobbiesModActive = true
+            return true
+        end
+    end
+    _isLifestyleHobbiesModActive = false
+    return false
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- Bathroom Need
+-- ---------------------------------------------------------------------------------------- --
+ISBathroomNeedStatusIndicator = MS_StatusIndicator:derive("ISBathroomNeedStatusIndicator")
+
+function ISBathroomNeedStatusIndicator:new(x, y, width, height, player)
+    local o = MS_StatusIndicator.new(self, x, y, width, height, player)
+    o.baseIconName = "toilet_icon"
+    o.__type = "ISBathroomNeedStatusIndicator"
+    o.indicatorColor = {r=0.4, g=0.6, b=0.9}
+    return o
+end
+
+function ISBathroomNeedStatusIndicator:getValue()
+    if not self.player or self.player:isDead() then return 0 end
+    
+    local modData = self.player:getModData()
+    local value = modData["bathroomNeed"]
+    if value == nil then return 0 end
+    
+    return value / 100
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- Hygiene Need
+-- ---------------------------------------------------------------------------------------- --
+ISHygieneNeedStatusIndicator = MS_StatusIndicator:derive("ISHygieneNeedStatusIndicator")
+
+function ISHygieneNeedStatusIndicator:new(x, y, width, height, player)
+    local o = MS_StatusIndicator.new(self, x, y, width, height, player)
+    o.baseIconName = "hygiene_icon"
+    o.__type = "ISHygieneNeedStatusIndicator"
+    o.indicatorColor = {r=0.4, g=0.9, b=0.9}
+    return o
+end
+
+function ISHygieneNeedStatusIndicator:getValue()
+    if not self.player or self.player:isDead() then return 0 end
+    
+    local modData = self.player:getModData()
+    local value = modData["hygieneNeed"]
+    if value == nil then return 0 end
+    
+    return value / 100
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- integrate To ModernStatus
+-- ---------------------------------------------------------------------------------------- --
+local function integrateToModernStatus()
+    if isInitialized then return end
+    
+    if not detectLifestyleHobbiesMod() then 
+        return 
+    end
+    
+    MS_IndicatorSettingsPanel.IndicatorNames["ISBathroomNeedStatusIndicator"] = "IGUI_ModernStatus_BathroomNeed"
+    MS_IndicatorSettingsPanel.IndicatorNames["ISHygieneNeedStatusIndicator"] = "IGUI_ModernStatus_HygieneNeed"
+    
+    if not StatusWidget._originalCreateUI then
+        StatusWidget._originalCreateUI = StatusWidget.createUI
+    end
+
+    local oldCreateUI = StatusWidget.createUI
+    StatusWidget.createUI = function(playerIndex, player)
+        oldCreateUI(playerIndex, player)
+
+        if not StatusWidget.indicators[playerIndex] then
+            StatusWidget.indicators[playerIndex] = {}
+        end
+
+        if StatusWidget.indicators[playerIndex]["ISBathroomNeedStatusIndicator"] or 
+           StatusWidget.indicators[playerIndex]["ISHygieneNeedStatusIndicator"] then
+            return
+        end
+        
+        -- ISBathroomNeedStatusIndicator
+        local config = MSConfig.getIndicatorConfig(playerIndex, "ISBathroomNeedStatusIndicator")
+        local x1 = config.position.x
+        local y1 = config.position.y
+        local width1, height1
+        if config.style == "bar" then
+            width1 = config.barSize.width
+            height1 = config.barSize.height
+        else
+            width1 = config.circularSize
+            height1 = config.circularSize
+        end
+        
+        local bathroomIndicator = ISBathroomNeedStatusIndicator:new(x1, y1, width1, height1, player)
+        bathroomIndicator:initialise()
+        bathroomIndicator:addToUIManager()
+        StatusWidget.indicators[playerIndex]["ISBathroomNeedStatusIndicator"] = bathroomIndicator
+        
+        -- ISHygieneNeedStatusIndicator
+        local config2 = MSConfig.getIndicatorConfig(playerIndex, "ISHygieneNeedStatusIndicator")
+        local x2 = config2.position.x
+        local y2 = config2.position.y
+        local width2, height2
+        if config2.style == "bar" then
+            width2 = config2.barSize.width
+            height2 = config2.barSize.height
+        else
+            width2 = config2.circularSize
+            height2 = config2.circularSize
+        end
+        
+        local hygieneIndicator = ISHygieneNeedStatusIndicator:new(x2, y2, width2, height2, player)
+        hygieneIndicator:initialise()
+        hygieneIndicator:addToUIManager()
+        StatusWidget.indicators[playerIndex]["ISHygieneNeedStatusIndicator"] = hygieneIndicator
+    end
+
+    if not MSConfig._originalCreateDefaultConfig then
+        MSConfig._originalCreateDefaultConfig = MSConfig.createDefaultConfig
+        
+        MSConfig.createDefaultConfig = function(playerNum)
+            local config = MSConfig._originalCreateDefaultConfig(playerNum)
+            if detectLifestyleHobbiesMod() then
+                if not config.indicators["ISBathroomNeedStatusIndicator"] then
+                    config.indicators["ISBathroomNeedStatusIndicator"] = {
+                        position = {x = 244, y = 64},
+                        circularSize = 48,
+                        barSize = {width = 160, height = 24},
+                        color = {r=0.4, g=0.6, b=0.9},
+                        opacity = 1.0,
+                        iconOpacity = 1.0,
+                        style = "circular",
+                        isVertical = false,
+                        showIcon = true,
+                        useGradient = false,
+                        useMonoIcon = false,
+                        locked = false,
+                        hidden = false,
+                        animationThreshold = 20
+                    }
+                end
+                
+                if not config.indicators["ISHygieneNeedStatusIndicator"] then
+                    config.indicators["ISHygieneNeedStatusIndicator"] = {
+                        position = {x = 244, y = 124},
+                        circularSize = 48,
+                        barSize = {width = 160, height = 24},
+                        color = {r=0.4, g=0.9, b=0.9},
+                        opacity = 1.0,
+                        iconOpacity = 1.0,
+                        style = "circular",
+                        isVertical = false,
+                        showIcon = true,
+                        useGradient = false,
+                        useMonoIcon = false,
+                        locked = false,
+                        hidden = false,
+                        animationThreshold = 20
+                    }
+                end
+            end
+            
+            return config
+        end
+    end
+    isInitialized = true
+end
+
+Events.OnGameBoot.Add(integrateToModernStatus)
+
+return {
+    isActive = detectLifestyleHobbiesMod
+}

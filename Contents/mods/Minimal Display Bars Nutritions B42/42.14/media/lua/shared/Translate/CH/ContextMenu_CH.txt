@@ -1,0 +1,65 @@
+ContextMenu_CH = {
+    
+    
+    ----- ContextMenu (Chinese/Mandarin - Traditional) -----
+    
+    ----- Title for Display Bars when Right-Clicked -----
+    ContextMenu_MinimalDisplayBars_Title = "�̤p�����",
+    
+    -- Menu Options
+    ContextMenu_MinimalDisplayBars_Reset = "���m�Ҧ�",
+    ContextMenu_MinimalDisplayBars_Show_Bar = "�����",
+    ContextMenu_MinimalDisplayBars_Show_All_Display_Bars = "��ܩҦ������",
+    ContextMenu_MinimalDisplayBars_Hide_Bar = "������",
+    ContextMenu_MinimalDisplayBars_Hide_All_Display_Bars= "���éҦ������",
+    ContextMenu_MinimalDisplayBars_Toggle_Movable_All = "�Ҧ��H���i����",
+    ContextMenu_MinimalDisplayBars_Toggle_Resizable_All = "�����l�ױN�����m�󳻳�",
+    ContextMenu_MinimalDisplayBars_Toggle_Always_Bring_Display_Bars_To_Top = "�����l�ױN�����m�󳻳�",
+    ContextMenu_MinimalDisplayBars_Toggle_Moodlet_Threshold_Lines = "�b�����W����Moodlet�H�Ƚu",
+    ContextMenu_MinimalDisplayBars_Toggle_Compact = "�}��/������ꫬ",
+    ContextMenu_MinimalDisplayBars_Toggle_Move_Bars_Together = "�����b�@�_���������",
+    ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "���������ϼ�",
+    
+    -- Display Bar Options
+    ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "���m�����",
+    ContextMenu_MinimalDisplayBars_Set_Vertical = "�]�m����",
+    ContextMenu_MinimalDisplayBars_Set_Horizontal = "�]�m����",
+    ContextMenu_MinimalDisplayBars_Set_HeightWidth = "�]�w����/�e��",
+    ContextMenu_MinimalDisplayBars_Set_Color = "�]�m�C��",
+    ContextMenu_MinimalDisplayBars_Hide = "����",
+    
+    -- Display Names
+    ContextMenu_MinimalDisplayBars_menu = "���",
+    ContextMenu_MinimalDisplayBars_hp = "����",
+    ContextMenu_MinimalDisplayBars_hunger = "���j",
+    ContextMenu_MinimalDisplayBars_thirst = "�f��",
+    ContextMenu_MinimalDisplayBars_endurance = "�@�O",
+    ContextMenu_MinimalDisplayBars_fatigue = "�h��",
+    ContextMenu_MinimalDisplayBars_boredomlevel = "�L�᪺����",
+    ContextMenu_MinimalDisplayBars_unhappynesslevel = "���ֵּ{��",
+    ContextMenu_MinimalDisplayBars_temperature = "�ū�",
+    ContextMenu_MinimalDisplayBars_calorie = "�d����",
+	ContextMenu_MinimalDisplayBars_carbohydrates = "碳水化合物",
+	ContextMenu_MinimalDisplayBars_proteins = "蛋白質",
+	ContextMenu_MinimalDisplayBars_lipids = "脂質",
+    ContextMenu_MinimalDisplayBars_discomfortlevel = "不適程度",
+    ContextMenu_MinimalDisplayBars_stress = "壓力",
+    ContextMenu_MinimalDisplayBars_sickness = "疾病",
+    ContextMenu_MinimalDisplayBars_wetness = "濕度",
+
+    -- UI
+    ContextMenu_MinimalDisplayBars_Tutorial_LeftClick = "��������ë����A��ʥH���ʡC",
+    ContextMenu_MinimalDisplayBars_Tutorial_RightClick = "�k������H�����h�ﶵ�C",
+    
+    -- OTHER
+    ContextMenu_MinimalDisplayBars_All = "�Ҧ�",
+    ContextMenu_MinimalDisplayBars_RestoreYourSettings = "��_�z���]�m",
+    ContextMenu_MinimalDisplayBars_ON = "�W",
+    ContextMenu_MinimalDisplayBars_OFF = "��",
+    
+    ContextMenu_MinimalDisplayBars_IconSize = "�ϼФj�p",
+    ContextMenu_MinimalDisplayBars_Width = "�e��",
+    ContextMenu_MinimalDisplayBars_Height = "����",
+    
+    
+}

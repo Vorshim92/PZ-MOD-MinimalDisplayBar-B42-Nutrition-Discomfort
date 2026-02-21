@@ -1,0 +1,9 @@
+name=ModernStatus
+id=ModernStatus
+poster=poster.png
+icon=icon.png
+author=Rocco
+modversion=1.0
+versionMin=42.13.0
+require=\NeatUI_Framework
+description= ModernStatus

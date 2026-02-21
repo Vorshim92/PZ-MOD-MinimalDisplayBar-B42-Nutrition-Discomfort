@@ -1,0 +1,182 @@
+require "ModernStatus/MS_StatusIndicator"
+
+local isInitialized = false
+local _isBathroomFunctionsModActive = nil
+
+local function detectBathroomFunctionsMod()
+    if _isBathroomFunctionsModActive ~= nil then
+        return _isBathroomFunctionsModActive
+    end
+    
+    local activatedMods = getActivatedMods()
+    for i=0, activatedMods:size()-1 do
+        local modName = activatedMods:get(i)
+        if string.find(string.lower(modName), "bathroomfunctions") then
+            _isBathroomFunctionsModActive = true
+            return true
+        end
+    end
+    _isBathroomFunctionsModActive = false
+    return false
+end
+-- ---------------------------------------------------------------------------------------- --
+-- Urination Need
+-- ---------------------------------------------------------------------------------------- --
+ISUrinationNeedStatusIndicator = MS_StatusIndicator:derive("ISUrinationNeedStatusIndicator")
+
+function ISUrinationNeedStatusIndicator:new(x, y, width, height, player)
+    local o = MS_StatusIndicator.new(self, x, y, width, height, player)
+    o.baseIconName = "Urination"
+    o.__type = "ISUrinationNeedStatusIndicator"
+    o.indicatorColor = {r=0.55, g=0.75, b=0.85}
+    return o
+end
+
+function ISUrinationNeedStatusIndicator:getValue()
+    if not self.player or self.player:isDead() then return 0 end
+    
+    local bladderMaxValue = BF.GetMaxBladderValue()
+    return BF.GetUrinateValue() / bladderMaxValue
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- Defecation Need
+-- ---------------------------------------------------------------------------------------- --
+ISDefecationNeedStatusIndicator = MS_StatusIndicator:derive("ISDefecationNeedStatusIndicator")
+
+function ISDefecationNeedStatusIndicator:new(x, y, width, height, player)
+    local o = MS_StatusIndicator.new(self, x, y, width, height, player)
+    o.baseIconName = "Defecation"
+    o.__type = "ISDefecationNeedStatusIndicator"
+    o.indicatorColor = {r=0.6, g=0.4, b=0.2}
+    return o
+end
+
+function ISDefecationNeedStatusIndicator:getValue()
+    if not self.player or self.player:isDead() then return 0 end
+    
+    local bowelsMaxValue = BF.GetMaxBowelValue()
+    return BF.GetDefecateValue() / bowelsMaxValue
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- integrate To ModernStatus
+-- ---------------------------------------------------------------------------------------- --
+local function integrateToBathroomFunctions()
+    if isInitialized then return end
+    
+    if not detectBathroomFunctionsMod() then return end
+    
+    MS_IndicatorSettingsPanel.IndicatorNames["ISUrinationNeedStatusIndicator"] = "IGUI_ModernStatus_UrinationNeed"
+    MS_IndicatorSettingsPanel.IndicatorNames["ISDefecationNeedStatusIndicator"] = "IGUI_ModernStatus_DefecationNeed"
+    
+    if not StatusWidget._originalCreateUI then
+        StatusWidget._originalCreateUI = StatusWidget.createUI
+    end
+    
+    local oldCreateUI = StatusWidget.createUI
+    StatusWidget.createUI = function(playerIndex, player)
+        oldCreateUI(playerIndex, player)
+
+        if not StatusWidget.indicators[playerIndex] then
+            StatusWidget.indicators[playerIndex] = {}
+        end
+
+        if StatusWidget.indicators[playerIndex]["urinationNeed"] or 
+           StatusWidget.indicators[playerIndex]["defecationNeed"] then
+            return
+        end
+        
+        -- ISUrinationNeedStatusIndicator
+        local config = MSConfig.getIndicatorConfig(playerIndex, "ISUrinationNeedStatusIndicator")
+        local x1 = config.position.x
+        local y1 = config.position.y
+        local width1, height1
+        if config.style == "bar" then
+            width1 = config.barSize.width
+            height1 = config.barSize.height
+        else
+            width1 = config.circularSize
+            height1 = config.circularSize
+        end
+        
+        local urinationIndicator = ISUrinationNeedStatusIndicator:new(x1, y1, width1, height1, player)
+        urinationIndicator:initialise()
+        urinationIndicator:addToUIManager()
+        StatusWidget.indicators[playerIndex]["urinationNeed"] = urinationIndicator
+        
+        -- ISDefecationNeedStatusIndicator
+        local config2 = MSConfig.getIndicatorConfig(playerIndex, "ISDefecationNeedStatusIndicator")
+        local x2 = config2.position.x
+        local y2 = config2.position.y
+        local width2, height2
+        if config2.style == "bar" then
+            width2 = config2.barSize.width
+            height2 = config2.barSize.height
+        else
+            width2 = config2.circularSize
+            height2 = config2.circularSize
+        end
+        
+        local defecationIndicator = ISDefecationNeedStatusIndicator:new(x2, y2, width2, height2, player)
+        defecationIndicator:initialise()
+        defecationIndicator:addToUIManager()
+        StatusWidget.indicators[playerIndex]["defecationNeed"] = defecationIndicator
+    end
+
+    if not MSConfig._originalCreateDefaultConfig then
+        MSConfig._originalCreateDefaultConfig = MSConfig.createDefaultConfig
+        
+        MSConfig.createDefaultConfig = function(playerNum)
+            local config = MSConfig._originalCreateDefaultConfig(playerNum)
+            if detectBathroomFunctionsMod() then
+                if not config.indicators["ISUrinationNeedStatusIndicator"] then
+                    config.indicators["ISUrinationNeedStatusIndicator"] = {
+                        position = {x = 244, y = 184},
+                        circularSize = 48,
+                        barSize = {width = 160, height = 24},
+                        color = {r=0.55, g=0.75, b=0.85},
+                        opacity = 1.0,
+                        iconOpacity = 1.0,
+                        style = "circular",
+                        isVertical = false,
+                        showIcon = true,
+                        useGradient = false,
+                        useMonoIcon = false,
+                        locked = false,
+                        hidden = false,
+                        animationThreshold = 20
+                    }
+                end
+                
+                if not config.indicators["ISDefecationNeedStatusIndicator"] then
+                    config.indicators["ISDefecationNeedStatusIndicator"] = {
+                        position = {x = 244, y = 244},
+                        circularSize = 48,
+                        barSize = {width = 160, height = 24},
+                        color = {r=0.6, g=0.4, b=0.2},
+                        opacity = 1.0,
+                        iconOpacity = 1.0,
+                        style = "circular",
+                        isVertical = false,
+                        showIcon = true,
+                        useGradient = false,
+                        useMonoIcon = false,
+                        locked = false,
+                        hidden = false,
+                        animationThreshold = 20
+                    }
+                end
+            end
+            
+            return config
+        end
+    end
+    isInitialized = true
+end
+
+Events.OnGameBoot.Add(integrateToBathroomFunctions)
+
+return {
+    isActive = detectBathroomFunctionsMod
+}

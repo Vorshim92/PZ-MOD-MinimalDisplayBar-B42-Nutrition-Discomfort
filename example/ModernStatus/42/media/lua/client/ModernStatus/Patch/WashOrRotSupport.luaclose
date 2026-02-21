@@ -1,0 +1,143 @@
+require "ModernStatus/MS_StatusIndicator"
+
+local isInitialized = false
+local _isWashOrRotModActive = nil
+
+local function detectWashOrRotMod()
+    if _isWashOrRotModActive ~= nil then
+        return _isWashOrRotModActive
+    end
+    
+    local activatedMods = getActivatedMods()
+    for i=0, activatedMods:size()-1 do
+        local modName = activatedMods:get(i)
+        if string.find(string.lower(modName), "washorrot") then
+            _isWashOrRotModActive = true
+            return true
+        end
+    end
+    _isWashOrRotModActive = false
+    return false
+end
+
+function initializePlayerModData(playerObj)
+    if not playerObj:getModData().WORbodyDirtiness then
+        playerObj:getModData().WORbodyDirtiness = 0
+    end
+    if not playerObj:getModData().WORbodyBloodiness then
+        playerObj:getModData().WORbodyBloodiness = 0
+    end
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- WOR Combined Status
+-- ---------------------------------------------------------------------------------------- --
+ISWORCombinedStatusIndicator = MS_StatusIndicator:derive("ISWORCombinedStatusIndicator")
+
+function ISWORCombinedStatusIndicator:new(x, y, width, height, player)
+    local o = MS_StatusIndicator.new(self, x, y, width, height, player)
+    o.baseIconName = "WORDirtiness"
+    o.__type = "ISWORCombinedStatusIndicator"
+    o.indicatorColor = {r=0.8, g=0.0, b=0.0}
+    return o
+end
+
+function ISWORCombinedStatusIndicator:getValue()
+    if not self.player or self.player:isDead() then return 0 end
+    
+    local bloodiness = self.player:getModData().WORbodyBloodiness or 0
+    local dirtiness = self.player:getModData().WORbodyDirtiness or 0
+    
+    if dirtiness > bloodiness then
+        return dirtiness / 100
+    else
+        return bloodiness / 100
+    end
+end
+
+-- ---------------------------------------------------------------------------------------- --
+-- integrate To ModernStatus
+-- ---------------------------------------------------------------------------------------- --
+local function integrateToWashOrRot()
+    if isInitialized then return end
+    
+    if not detectWashOrRotMod() then 
+        return 
+    end
+    
+    MS_IndicatorSettingsPanel.IndicatorNames["ISWORCombinedStatusIndicator"] = "Moodles_worgrimed_Bad_lvl1"
+    
+    if not StatusWidget._originalCreateUI then
+        StatusWidget._originalCreateUI = StatusWidget.createUI
+    end
+
+    local oldCreateUI = StatusWidget.createUI
+    StatusWidget.createUI = function(playerIndex, player)
+        oldCreateUI(playerIndex, player)
+
+        if not StatusWidget.indicators[playerIndex] then
+            StatusWidget.indicators[playerIndex] = {}
+        end
+
+        if StatusWidget.indicators[playerIndex]["wor_combined"] then
+            return
+        end
+        
+        initializePlayerModData(player)
+        
+        -- ISWORCombinedStatusIndicator
+        local config = MSConfig.getIndicatorConfig(playerIndex, "ISWORCombinedStatusIndicator")
+        local x = config.position.x
+        local y = config.position.y
+        local width, height
+        if config.style == "bar" then
+            width = config.barSize.width
+            height = config.barSize.height
+        else
+            width = config.circularSize
+            height = config.circularSize
+        end
+        
+        local combinedIndicator = ISWORCombinedStatusIndicator:new(x, y, width, height, player)
+        combinedIndicator:initialise()
+        combinedIndicator:addToUIManager()
+        StatusWidget.indicators[playerIndex]["wor_combined"] = combinedIndicator
+    end
+
+    if not MSConfig._originalCreateDefaultConfig then
+        MSConfig._originalCreateDefaultConfig = MSConfig.createDefaultConfig
+        
+        MSConfig.createDefaultConfig = function(playerNum)
+            local config = MSConfig._originalCreateDefaultConfig(playerNum)
+            if detectWashOrRotMod() then
+                if not config.indicators["ISWORCombinedStatusIndicator"] then
+                    config.indicators["ISWORCombinedStatusIndicator"] = {
+                        position = {x = 244, y = 304},
+                        circularSize = 48,
+                        barSize = {width = 160, height = 24},
+                        color = {r=0.8, g=0.0, b=0.0},
+                        opacity = 1.0,
+                        iconOpacity = 1.0,
+                        style = "circular",
+                        isVertical = false,
+                        showIcon = true,
+                        useGradient = false,
+                        useMonoIcon = false,
+                        locked = false,
+                        hidden = false,
+                        animationThreshold = 20
+                    }
+                end
+            end
+            
+            return config
+        end
+    end
+    isInitialized = true
+end
+
+
+Events.OnGameBoot.Add(integrateToWashOrRot)
+return {
+    isActive = detectWashOrRotMod
+}
