@@ -1212,8 +1212,11 @@ local function getSickness(isoPlayer, useRealValue)
         return -1
     end
 
-    local stats = isoPlayer:getStats()
-    local sickness = stats:get(CharacterStat.SICKNESS)
+    local apparent = isoPlayer:getBodyDamage():getApparentInfectionLevel() / 100.0
+    local baseSickness = isoPlayer:getStats():get(CharacterStat.SICKNESS)
+    local sickness = apparent + baseSickness
+    if sickness < 0 then sickness = 0 end
+    if sickness > 1 then sickness = 1 end
 
     if useRealValue then
         return sickness
