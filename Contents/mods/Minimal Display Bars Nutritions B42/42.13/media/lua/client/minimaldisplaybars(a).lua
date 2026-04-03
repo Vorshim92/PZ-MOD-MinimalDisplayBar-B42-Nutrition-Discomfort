@@ -1204,6 +1204,10 @@ local function getColorHunger(isoPlayer)
 end
 
 -- Sickness Functions
+-- Vanilla SICK moodle formula: apparentInfectionLevel/100 + CharacterStat.SICKNESS
+-- apparentInfectionLevel = max(FOOD_SICKNESS, ZOMBIE_FEVER, ZOMBIE_INFECTION)
+-- CharacterStat.SICKNESS alone is never written by vanilla code, so we must
+-- combine it with getApparentInfectionLevel() to capture real sickness sources.
 local function calcSickness(value)
     return value
 end
@@ -1212,8 +1216,11 @@ local function getSickness(isoPlayer, useRealValue)
         return -1
     end
 
-    local stats = isoPlayer:getStats()
-    local sickness = stats:get(CharacterStat.SICKNESS)
+    local apparent = isoPlayer:getBodyDamage():getApparentInfectionLevel() / 100.0
+    local baseSickness = isoPlayer:getStats():get(CharacterStat.SICKNESS)
+    local sickness = apparent + baseSickness
+    if sickness < 0 then sickness = 0 end
+    if sickness > 1 then sickness = 1 end
 
     if useRealValue then
         return sickness

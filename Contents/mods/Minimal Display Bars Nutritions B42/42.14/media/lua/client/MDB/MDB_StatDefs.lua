@@ -1002,17 +1002,21 @@ MDB_StatDefs.registry = {
         order           = 15,
         highIsBetter    = false,
         useDynamicColor = false,
-        moodleType      = "MoodleType.FoodEaten",
+        moodleType      = "MoodleType.SICK",
 
-        -- Original: calcSickness(value) = value (identity, already 0-1 from CharacterStat)
+        -- Vanilla SICK moodle formula: apparentInfectionLevel/100 + CharacterStat.SICKNESS
+        -- apparentInfectionLevel = max(FOOD_SICKNESS, ZOMBIE_FEVER, ZOMBIE_INFECTION)
         getValue = function(player)
             if player:isDead() then return -1 end
-            local sickness = player:getStats():get(CharacterStat.SICKNESS)
-            return clamp01(sickness)
+            local apparent = player:getBodyDamage():getApparentInfectionLevel() / 100.0
+            local baseSickness = player:getStats():get(CharacterStat.SICKNESS)
+            return clamp01(apparent + baseSickness)
         end,
 
         getRawValue = function(player)
-            return player:getStats():get(CharacterStat.SICKNESS)
+            local apparent = player:getBodyDamage():getApparentInfectionLevel() / 100.0
+            local baseSickness = player:getStats():get(CharacterStat.SICKNESS)
+            return apparent + baseSickness
         end,
 
         formatTooltip = function(raw, player)

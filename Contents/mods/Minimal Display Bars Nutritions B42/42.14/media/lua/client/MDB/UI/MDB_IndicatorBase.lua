@@ -449,9 +449,12 @@ function MDB_IndicatorBase:renderTooltip(value)
     local statDef = MDB_StatDefs.byId[self.statId]
     local core = getCore()
 
-    -- Tooltip box positioning offsets
-    local xOff = 4
-    local yOff = (self.statId == "menu") and 20 or 4
+    -- Tooltip positioning: will be computed after boxWidth/boxHeight are finalized
+    local gap = 4
+    local absX = self:getX()
+    local absY = self:getY()
+    local screenW = core:getScreenWidth()
+    local screenH = core:getScreenHeight()
     local boxWidth = 200
     local boxHeight = FONT_HGT_SMALL * 7
 
@@ -553,21 +556,33 @@ function MDB_IndicatorBase:renderTooltip(value)
         end
     end
 
-    -- Adjust tooltip position to stay on screen
-    if core:getScreenWidth() < self:getX() + boxWidth + xOff then
-        xOff = xOff - xOff - boxWidth
+    -- Position tooltip OUTSIDE the indicator (default: to the right)
+    local tooltipAbsX = absX + self.width + gap
+    local tooltipAbsY = absY
+
+    -- Flip to left if going off right edge
+    if tooltipAbsX + boxWidth > screenW then
+        tooltipAbsX = absX - boxWidth - gap
     end
-    if core:getScreenHeight() < self:getY() + boxHeight + yOff then
-        yOff = yOff - yOff - boxHeight
+    -- Clamp to screen edges
+    if tooltipAbsX < 0 then
+        tooltipAbsX = 0
+    end
+    if tooltipAbsY + boxHeight > screenH then
+        tooltipAbsY = screenH - boxHeight
+    end
+    if tooltipAbsY < 0 then
+        tooltipAbsY = 0
     end
 
+    -- Convert back to element-relative coordinates
+    local xOff = tooltipAbsX - absX
+    local yOff = tooltipAbsY - absY
+
     -- Draw the tooltip box (dim overlay removed — hover feedback is per-subclass)
-    self:drawRectStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff,
-        boxWidth, boxHeight, 0.85, 0, 0, 0)
-    self:drawRectBorderStatic(self.borderSizes.l + xOff, self.borderSizes.t + yOff,
-        boxWidth, boxHeight, 0.85, 1, 1, 1)
-    self:drawText(tooltipTxt, self.borderSizes.l + 2 + xOff, self.borderSizes.t + 2 + yOff,
-        1, 1, 1, 1, UIFont.Small)
+    self:drawRectStatic(xOff, yOff, boxWidth, boxHeight, 0.85, 0, 0, 0)
+    self:drawRectBorderStatic(xOff, yOff, boxWidth, boxHeight, 0.85, 1, 1, 1)
+    self:drawText(tooltipTxt, xOff + 2, yOff + 2, 1, 1, 1, 1, UIFont.Small)
 end
 
 -- ---------------------------------------------------------------------------

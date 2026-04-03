@@ -282,13 +282,13 @@ function MDB_BarIndicator:renderVerticalBar(value)
     end
     local w = self.width
     local h = self.height
-    local bgAlpha = self.color.alpha * 0.5
+    local bgAlpha = 0.6
 
     -- 1. Draw full-size background ThreePatch (dark gray tint)
     NeatTool.ThreePatch.drawVertical(
         self, 0, 0, w, h,
         self.tpVBgTop, self.tpVBgMiddle, self.tpVBgBottom,
-        bgAlpha, 0.3, 0.3, 0.3
+        bgAlpha, 0.15, 0.15, 0.15
     )
 
     -- 2. Draw stencil-clipped fill ThreePatch (stat color)
@@ -329,13 +329,13 @@ function MDB_BarIndicator:renderHorizontalBar(value)
     end
     local w = self.width
     local h = self.height
-    local bgAlpha = self.color.alpha * 0.5
+    local bgAlpha = 0.6
 
     -- 1. Draw full-size background ThreePatch (dark gray tint)
     NeatTool.ThreePatch.drawHorizontal(
         self, 0, 0, w, h,
         self.tpHBgLeft, self.tpHBgMiddle, self.tpHBgRight,
-        bgAlpha, 0.3, 0.3, 0.3
+        bgAlpha, 0.15, 0.15, 0.15
     )
 
     -- 2. Draw stencil-clipped fill ThreePatch (stat color)
