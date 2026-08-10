@@ -1,4 +1,5 @@
 {
+  "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.library": ["${addons}/umbrella-unstable/module/library"],
   "Lua.runtime.path": ["?.lua", "?/init.lua", "server/?.lua"],
   "Lua.completion.requireSeparator": "/",
