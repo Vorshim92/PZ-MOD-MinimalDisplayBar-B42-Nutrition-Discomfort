@@ -30,8 +30,39 @@ end
 tempIndex = nil
 gameVersion = nil
 
-MinimalDisplayBars.defaultSettingsFileName = "MOD DefaultSettings (".. MinimalDisplayBars.MOD_ID ..")B42.lua"
-MinimalDisplayBars.configFileName = "MOD Config Options (".. MinimalDisplayBars.MOD_ID ..")B42.lua"
+-- B42.20+: getFileWriter accetta solo le estensioni {ini, cfg, txt, log, json}
+-- (LuaManager.ALLOWED_FILE_EXTENSIONS) e restituisce nil in silenzio per tutte le altre.
+-- getFileReader NON e' filtrato, quindi i vecchi file .lua restano leggibili:
+-- registriamo per ogni nome nuovo il corrispondente nome legacy, cosi' le config
+-- esistenti vengono lette una volta e migrate al primo salvataggio.
+
+MinimalDisplayBars.legacyFileNames = {}   -- [nuovoNome] = vecchioNome
+
+local function registerLegacy(newName, legacyName)
+    MinimalDisplayBars.legacyFileNames[newName] = legacyName
+    return newName
+end
+
+MinimalDisplayBars.configFileNameBase = "MOD Config Options (".. MinimalDisplayBars.MOD_ID ..")B42"
+
+MinimalDisplayBars.defaultSettingsFileName = registerLegacy(
+    "MOD DefaultSettings (".. MinimalDisplayBars.MOD_ID ..")B42.txt",
+    "MOD DefaultSettings (".. MinimalDisplayBars.MOD_ID ..")B42.lua")
+
+MinimalDisplayBars.configFileName = registerLegacy(
+    MinimalDisplayBars.configFileNameBase .. ".txt",
+    MinimalDisplayBars.configFileNameBase .. ".lua")
+
+MinimalDisplayBars.presetFileName = registerLegacy("MDB_Preset.txt", "MDB_Preset.lua")
+
+-- slot: "" | " P2" | " P3" | " P4" | " P_wildcard"
+-- Il nome legacy riproduce la vecchia concatenazione (".lua" .. slot .. ".lua").
+function MinimalDisplayBars.configFileFor(slot)
+    if slot == "" then return MinimalDisplayBars.configFileName end
+    return registerLegacy(
+        MinimalDisplayBars.configFileNameBase .. slot .. ".txt",
+        MinimalDisplayBars.configFileNameBase .. ".lua" .. slot .. ".lua")
+end
 --local configFileLocation = getMyDocumentFolder() .. getFileSeparator() .. MinimalDisplayBars.configFileName
 
 MinimalDisplayBars.configFileLocations = {}
@@ -334,11 +365,14 @@ local write, writeIndent, writers, refCount;
 MinimalDisplayBars.io_persistence =
 {
 	store = function (path, modID, ...)
-		local file, e = getFileWriter(path, true, false) --e = io.open(path, "w");
+		local file = getFileWriter(path, true, false)
 		if not file then
-            print("Error opening file for writing: ", e)
-            return error(e)
-            end
+			-- B42.20+: getFileWriter restituisce nil (senza errore) se l'estensione
+			-- non e' tra {ini, cfg, txt, log, json}, oppure se il path e' relativo.
+			print("[MDB] getFileWriter nil per '"..tostring(path).."' - "
+				.. "in B42.20+ sono scrivibili solo .ini/.cfg/.txt/.log/.json")
+			return false
+		end
 		local n = select("#", ...);
 		-- Count references
 		local objRefCount = {}; -- Stores reference that will be exported
@@ -388,27 +422,35 @@ MinimalDisplayBars.io_persistence =
 		if type(path) == "string" then
 			file:close();
 		end;
+		return true;
 	end;
 
 	load = function (path, modID)
 		local f, e;
 		if type(path) == "string" then
-            --f, e = loadfile(path);
-			f, e = getFileReader(path, true);
-            
-            local contents = "";
-            local scanLine = f:readLine();
-            while scanLine do
-                
-                contents = contents.. scanLine .."\r\n";
-                
-                scanLine = f:readLine();
-                if not scanLine then break end
-            end
-            
-            f:close();
-            
-            f = contents;
+			-- Prova prima il nome nuovo (.txt); se non esiste, ricade sul vecchio .lua.
+			-- getFileReader NON e' soggetto all'allowlist di estensioni, quindi le
+			-- config salvate prima di B42.20 restano leggibili e migrano al primo store().
+			local reader = getFileReader(path, false);
+			if not reader then
+				local legacy = MinimalDisplayBars.legacyFileNames[path];
+				if legacy then reader = getFileReader(legacy, false) end
+			end
+			if not reader then return nil end
+
+			local contents = "";
+			local scanLine = reader:readLine();
+			while scanLine do
+
+				contents = contents.. scanLine .."\r\n";
+
+				scanLine = reader:readLine();
+				if not scanLine then break end
+			end
+
+			reader:close();
+
+			f = contents;
 		else
 			f, e = path:read('*a');
 		end
@@ -531,18 +573,29 @@ writers = {
 -- Returns true if successful, otherwise return false if an error occured.
 MinimalDisplayBars.SaveToFile = function(destinationFile, text)
     local fileWriter = getFileWriter(destinationFile, true, false)
-    
+    if not fileWriter then
+        -- B42.20+: estensione non in {ini, cfg, txt, log, json} -> nil silenzioso.
+        print("[MDB] SaveToFile: getFileWriter nil per '"..tostring(destinationFile).."'")
+        return false
+    end
+
     fileWriter:write(tostring(text))
     fileWriter:close()
+    return true
 end
 
 -- Load from a sourceFile file.
 -- Returns a table of Strings, representing each line in the file.
-MinimalDisplayBars.LoadFromFile = function(sourceFile)
+-- legacyFile: nome alternativo (pre-B42.20) provato se sourceFile non esiste.
+MinimalDisplayBars.LoadFromFile = function(sourceFile, legacyFile)
 
 	local contents = {}
-	local fileReader = getFileReader(sourceFile, true)
-    
+	local fileReader = getFileReader(sourceFile, false)
+	if not fileReader and legacyFile then
+		fileReader = getFileReader(legacyFile, false)
+	end
+	if not fileReader then return contents end
+
 	local scanLine = fileReader:readLine()
 	while scanLine do
         
@@ -1908,14 +1961,16 @@ local function onConfirmLoadPreset(target, button, param1, param2)
     if not bar then return end
     
     if not param2 then
-        getPlayer():Say("Loading MDB_Preset.lua")
-    
+        getPlayer():Say("Loading " .. MinimalDisplayBars.presetFileName)
+
+        -- Il registro legacy fa ricadere la lettura su "MDB_Preset.lua",
+        -- cosi' restano importabili i preset condivisi nel vecchio formato.
         local loadedPreset = MinimalDisplayBars.io_persistence.load(
-            "MDB_Preset.lua",
+            MinimalDisplayBars.presetFileName,
             MinimalDisplayBars.MOD_ID
         )
         if not loadedPreset then
-            getPlayer():Say("Can't find MDB_Preset.lua!")
+            getPlayer():Say("Can't find " .. MinimalDisplayBars.presetFileName .. "!")
             return
         end
 
@@ -1939,7 +1994,7 @@ local function onConfirmLoadPreset(target, button, param1, param2)
         getPlayer():Say("Loading "..param2.." Preset")
         -- getModFileWriter
         if not param2 then
-            getPlayer():Say("Can't find MDB_Preset.lua!")
+            getPlayer():Say("Can't find " .. MinimalDisplayBars.presetFileName .. "!")
             return
         end
         local defaultTable = MinimalDisplayBars.io_persistence.load(
@@ -2750,11 +2805,11 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             if not generic_bar then return end
             
             MinimalDisplayBars.io_persistence.store(
-                "MDB_Preset.lua",
+                MinimalDisplayBars.presetFileName,
                 MinimalDisplayBars.MOD_ID,
                 MinimalDisplayBars.configTables[generic_bar.coopNum]
             )
-            
+
             getPlayer():Say("Preset exported successfully!")
             return
             end
@@ -3007,10 +3062,10 @@ end
 
 
 -- Give default settings to config opts.
---[[MinimalDisplayBars.configFileLocations[1] = MinimalDisplayBars.configFileName
-MinimalDisplayBars.configFileLocations[2] = MinimalDisplayBars.configFileName .. " P2.lua"
-MinimalDisplayBars.configFileLocations[3] = MinimalDisplayBars.configFileName .. " P3.lua"
-MinimalDisplayBars.configFileLocations[4] = MinimalDisplayBars.configFileName .. " P4.lua"
+--[[MinimalDisplayBars.configFileLocations[1] = MinimalDisplayBars.configFileFor("")
+MinimalDisplayBars.configFileLocations[2] = MinimalDisplayBars.configFileFor(" P2")
+MinimalDisplayBars.configFileLocations[3] = MinimalDisplayBars.configFileFor(" P3")
+MinimalDisplayBars.configFileLocations[4] = MinimalDisplayBars.configFileFor(" P4")
 
 MinimalDisplayBars.configTables[1] = MinimalDisplayBars.io_persistence.load(MinimalDisplayBars.defaultSettingsFileName, MinimalDisplayBars.MOD_ID)
 MinimalDisplayBars.configTables[2] = MinimalDisplayBars.io_persistence.load(MinimalDisplayBars.defaultSettingsFileName, MinimalDisplayBars.MOD_ID)
@@ -3051,15 +3106,15 @@ local function createUiFor(playerIndex, isoPlayer)
     if not isAlreadySpawned then table.insert(playerIndices, coopNum) end
     
     if playerIndices[1] == coopNum then
-        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileName
+        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileFor("")
     elseif playerIndices[2] == coopNum then
-        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileName .. " P2.lua"
+        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileFor(" P2")
     elseif playerIndices[3] == coopNum then
-        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileName .. " P3.lua"
+        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileFor(" P3")
     elseif playerIndices[4] == coopNum then
-        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileName .. " P4.lua"
+        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileFor(" P4")
     else
-        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileName .. " P_wildcard.lua"
+        MinimalDisplayBars.configFileLocations[coopNum] = MinimalDisplayBars.configFileFor(" P_wildcard")
     end
     
     MinimalDisplayBars.configTables[coopNum] = 
@@ -3412,7 +3467,10 @@ local function createUiFor(playerIndex, isoPlayer)
     
     ------------------------------------------------------------------------------
     -- required fix for any Horizontal Bars from 4.3.0 and versions below 4.3.0
-    local data = MinimalDisplayBars.LoadFromFile("_horizontalbarfix")
+    -- B42.20+: "_horizontalbarfix" (senza estensione) non e' piu' scrivibile.
+    -- Senza il flag questo fix one-shot si rieseguirebbe a ogni sessione,
+    -- invertendo width/height delle barre ogni volta.
+    local data = MinimalDisplayBars.LoadFromFile("_horizontalbarfix.txt", "_horizontalbarfix")
     if not data or data[1] == nil then 
         data = {} end
     
@@ -3447,7 +3505,7 @@ local function createUiFor(playerIndex, isoPlayer)
             MinimalDisplayBars.MOD_ID, 
             MinimalDisplayBars.configTables[coopNum])
         
-        MinimalDisplayBars.SaveToFile("_horizontalbarfix", "fixed")
+        MinimalDisplayBars.SaveToFile("_horizontalbarfix.txt", "fixed")
     end
     ------------------------------------------------------------------------------
     

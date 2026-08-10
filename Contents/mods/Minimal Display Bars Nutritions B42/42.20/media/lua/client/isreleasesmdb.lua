@@ -122,7 +122,10 @@ end
 
 Events.OnGameStart.Add(function()
     
-    local data = MinimalDisplayBars.LoadFromFile("_data")
+    -- B42.20+: "_data" (senza estensione) non e' piu' scrivibile da getFileWriter,
+    -- che accetta solo {ini, cfg, txt, log, json}. Si legge il nuovo "_data.txt"
+    -- con fallback sul vecchio "_data" per non rimostrare le note a chi le ha gia' viste.
+    local data = MinimalDisplayBars.LoadFromFile("_data.txt", "_data")
     if not data or data[1] == nil then 
         data = {} end
     if data[1] == MOD_VERSION then return end
@@ -166,7 +169,7 @@ Events.OnGameStart.Add(function()
                         end
                     end
                     
-                    MinimalDisplayBars.SaveToFile("_data", text)
+                    MinimalDisplayBars.SaveToFile("_data.txt", text)
                     
                     return
                 end)
