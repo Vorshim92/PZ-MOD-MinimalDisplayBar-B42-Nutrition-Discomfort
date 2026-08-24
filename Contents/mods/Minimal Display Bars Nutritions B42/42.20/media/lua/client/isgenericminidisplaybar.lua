@@ -9,6 +9,14 @@ local FONT_HGT_SMALL = getTextManager():getFontHeight(UIFont.Small)
 local FONT_HGT_MEDIUM = getTextManager():getFontHeight(UIFont.Medium)
 local FONT_HGT_LARGE = getTextManager():getFontHeight(UIFont.Large)
 
+-- Vanilla identifies UI elements by their toString() when it hides and restores them around
+-- the escape menu (ISUIHandler.setVisibleAllUI). Since 42.19 ISUIElement:tostring() returns
+-- just the class name, so every bar would answer "ISGenericMiniDisplayBar" and the restore
+-- pass would match them by list order instead of identity, leaving one bar hidden.
+function ISGenericMiniDisplayBar:tostring()
+    return "ISGenericMiniDisplayBar:" .. tostring(self.coopNum) .. ":" ..
+           tostring(self.playerIndex) .. ":" .. tostring(self.idName)
+end
 
 function ISGenericMiniDisplayBar:setWidth(w, ...)
     local panel = ISPanel.setWidth(self, w, ...)
@@ -73,8 +81,8 @@ end
 
 local toolTip = nil
 function ISGenericMiniDisplayBar:onMouseMoveOutside(dx, dy, ...)
-    local panel = ISPanel.onMouseMove(self, dx, dy, ...)
-    
+    local panel = ISPanel.onMouseMoveOutside(self, dx, dy, ...)
+
     self.showTooltip = false
     
     if self.moving then 

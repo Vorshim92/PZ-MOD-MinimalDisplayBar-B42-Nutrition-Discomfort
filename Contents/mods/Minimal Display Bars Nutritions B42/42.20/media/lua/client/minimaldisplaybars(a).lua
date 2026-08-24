@@ -1815,6 +1815,11 @@ function MinimalDisplayBars.createMoveBarsTogetherPanel(playerIndex)
                 minY, 
                 maxX - minX, 
                 maxY - minY);
+        -- Same reason as ISGenericMiniDisplayBar:tostring(): a bare ISPanel would answer
+        -- "ISPanel" and could be picked up by ISUIHandler.setVisibleAllUI's restore pass.
+        moveBarsTogetherRectangle.tostring = function()
+            return "MDB_moveBarsTogetherRectangle:" .. tostring(playerIndex)
+        end
         moveBarsTogetherRectangle:instantiate()
         moveBarsTogetherRectangle:addToUIManager()
         moveBarsTogetherRectangle:setVisible(false)
