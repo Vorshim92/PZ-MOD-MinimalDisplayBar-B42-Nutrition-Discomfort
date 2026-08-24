@@ -2616,7 +2616,7 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
         )
         
         -- Toggle Show Image
-        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Show_Image")..
+        local str = getText("ContextMenu_MinimalDisplayBars_Toggle_Show_Icon")..
                     " ("..getText("ContextMenu_MinimalDisplayBars_"..(barHP.showImage and "ON" or "OFF"))..")"
                     
         contextMenu:addOption(

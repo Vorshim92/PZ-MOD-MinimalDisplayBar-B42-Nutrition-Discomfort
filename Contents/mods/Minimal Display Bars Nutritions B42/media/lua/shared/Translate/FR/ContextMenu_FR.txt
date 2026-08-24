@@ -21,7 +21,7 @@ ContextMenu_FR = {
     ContextMenu_MinimalDisplayBars_Toggle_Show_Icon = "Basculer les icônes de la barre d'affichage",
     
     -- Display Bar Options
-    ontextMenu_MinimalDisplayBars_Reset_Display_Bar = "Réinitialiser la barre d'affichage",
+    ContextMenu_MinimalDisplayBars_Reset_Display_Bar = "Réinitialiser la barre d'affichage",
     ContextMenu_MinimalDisplayBars_Set_Vertical = "Définir vertical",
     ContextMenu_MinimalDisplayBars_Set_Horizontal = "Définir horizontal",
     ContextMenu_MinimalDisplayBars_Set_HeightWidth = "Définir la hauteur / largeur",
