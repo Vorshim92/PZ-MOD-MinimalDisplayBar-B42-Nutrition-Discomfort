@@ -455,16 +455,306 @@ MinimalDisplayBars.io_persistence =
 			f, e = path:read('*a');
 		end
 		if f then
-            local func = loadstring(f);
-            if func then
-                return func();
-            else
-                return nil;
-            end
+            -- B42.20 removed loadstring, so the saved config is parsed rather than
+            -- executed. No loss here: store() only ever emits nested tables of
+            -- strings, numbers and booleans, which is exactly what parseData reads.
+            -- It is also the safer shape -- a config file dropped into Zomboid/Lua/
+            -- used to run as code with full privileges just to restore some settings.
+            return MinimalDisplayBars.io_persistence.parseData(f);
 		else
 			return nil, e;
 		end;
 	end;
+
+    --- Parses the subset of Lua that store() emits, rather than executing it:
+    --- `["key"] = value;` entries nested in `{ ... }`, values being string, number,
+    --- boolean, nil, a nested table, or a `multiRefObjects[n]` back-reference.
+    ---
+    --- Unrecognised input is skipped rather than guessed at, so a hand-edited or
+    --- truncated file degrades to defaults instead of taking the UI down with it.
+    --- Functions cannot be restored at all any more (see the "function" writer).
+    --- @param text string
+    --- @return table|nil
+    parseData = function (text)
+        local pos, len = 1, #text;
+        -- Tables that store() emitted once and referenced from several places.
+        local shared = {};
+
+        local function skipSpace()
+            while pos <= len do
+                local c = text:sub(pos, pos);
+                if c == ' ' or c == '\t' or c == '\r' or c == '\n' then
+                    pos = pos + 1;
+                elseif c == '-' and text:sub(pos + 1, pos + 1) == '-' then
+                    local long = text:match('^%-%-%[(=*)%[', pos);
+                    if long then
+                        -- Long comment: runs to the matching ]=*] , not to end of line.
+                        local close = text:find(']' .. long .. ']', pos + 4 + #long, true);
+                        pos = close and (close + #long + 2) or (len + 1);
+                    else
+                        local nl = text:find('\n', pos, true);
+                        pos = nl and (nl + 1) or (len + 1);
+                    end
+                else
+                    return;
+                end
+            end
+        end
+
+        --- Reads a quoted string. Handles the escapes string.format('%q') emits, plus
+        --- the \n and \t a hand-written file might carry.
+        local function readString()
+            local quote = text:sub(pos, pos);
+            pos = pos + 1;
+            local out = {};
+            while pos <= len do
+                -- Take everything up to the next character that needs attention in one
+                -- slice: per-character reads allocate, and configs are mostly plain.
+                local nextSpecial = text:find('[\\"\']', pos);
+                if not nextSpecial then
+                    out[#out + 1] = text:sub(pos);
+                    pos = len + 1;
+                    break;
+                end
+                if nextSpecial > pos then
+                    out[#out + 1] = text:sub(pos, nextSpecial - 1);
+                    pos = nextSpecial;
+                end
+                local c = text:sub(pos, pos);
+                if c == '\\' then
+                    local nxt = text:sub(pos + 1, pos + 1);
+                    if nxt == 'n' then out[#out + 1] = '\n'; pos = pos + 2;
+                    elseif nxt == 't' then out[#out + 1] = '\t'; pos = pos + 2;
+                    elseif nxt == 'r' then out[#out + 1] = '\r'; pos = pos + 2;
+                    elseif nxt:match('%d') then
+                        -- %q writes non-printables as \ddd. Take at most three digits,
+                        -- and only if they form a byte: a hand-written '\65' followed
+                        -- by a literal '9' would otherwise be read as \659.
+                        local digits = text:match('^%d%d?%d?', pos + 1) or '';
+                        local code = tonumber(digits);
+                        while code and code > 255 and #digits > 1 do
+                            digits = digits:sub(1, #digits - 1);
+                            code = tonumber(digits);
+                        end
+                        if code and code <= 255 then
+                            out[#out + 1] = string.char(code);
+                            pos = pos + 1 + #digits;
+                        else
+                            out[#out + 1] = nxt; pos = pos + 2;
+                        end
+                    else
+                        -- Covers \\ , \" and %q's backslash-then-real-newline.
+                        out[#out + 1] = nxt; pos = pos + 2;
+                    end
+                elseif c == quote then
+                    pos = pos + 1;
+                    return table.concat(out);
+                else
+                    -- The other quote character: literal here.
+                    out[#out + 1] = c; pos = pos + 1;
+                end
+            end
+            return table.concat(out);
+        end
+
+        --- Steps over a value we cannot represent, as a unit. Skipping one character
+        --- at a time would walk into the middle of a quoted string, and a '}' in there
+        --- would silently close the enclosing table and truncate the config.
+        local function skipUnknown()
+            local c = text:sub(pos, pos);
+            if c == '"' or c == "'" then
+                readString();
+                return;
+            end
+            -- An identifier, optionally with a call or index after it, e.g.
+            -- loadstring("...") left over from a config written before B42.20.
+            local name = text:match('^[%a_][%w_%.]*', pos);
+            if name then
+                pos = pos + #name;
+                skipSpace();
+                local open = text:sub(pos, pos);
+                if open == '(' or open == '[' then
+                    local close = (open == '(') and ')' or ']';
+                    local depth = 0;
+                    while pos <= len do
+                        local ch = text:sub(pos, pos);
+                        if ch == '"' or ch == "'" then
+                            readString();
+                        else
+                            if ch == open then depth = depth + 1;
+                            elseif ch == close then
+                                depth = depth - 1;
+                                if depth == 0 then pos = pos + 1; return end
+                            end
+                            pos = pos + 1;
+                        end
+                    end
+                end
+                return;
+            end
+            pos = pos + 1;
+        end
+
+        local readValue;
+
+        local function readTable()
+            local t = {};
+            local arrayIndex = 0;
+            pos = pos + 1;  -- past '{'
+            while pos <= len do
+                skipSpace();
+                local c = text:sub(pos, pos);
+                if c == '}' or c == '' then pos = pos + 1; return t end
+
+                local key, keyed;
+                if c == '[' then
+                    -- Bracketed key: ["name"] = ... , as store() writes it.
+                    pos = pos + 1;
+                    skipSpace();
+                    local kc = text:sub(pos, pos);
+                    if kc == '"' or kc == "'" then
+                        key = readString();
+                    else
+                        local raw = text:match('^[^%]]*', pos) or '';
+                        pos = pos + #raw;
+                        key = tonumber(raw) or raw;
+                    end
+                    skipSpace();
+                    if text:sub(pos, pos) == ']' then pos = pos + 1 end
+                    keyed = true;
+                else
+                    -- Bare identifier key: name = ... . Not what store() emits, but
+                    -- valid Lua and present in hand-written config files.
+                    local name = text:match('^[%a_][%w_]*', pos);
+                    if name then
+                        local after = pos + #name;
+                        local gap = text:match('^%s*', after) or '';
+                        if text:sub(after + #gap, after + #gap) == '='
+                            and text:sub(after + #gap + 1, after + #gap + 1) ~= '=' then
+                            pos = after;
+                            key = name;
+                            keyed = true;
+                        end
+                    end
+                end
+
+                if keyed then
+                    skipSpace();
+                    if text:sub(pos, pos) == '=' then pos = pos + 1 end
+                    skipSpace();
+                    local ok, value = readValue();
+                    if ok and key ~= nil then t[key] = value end
+                else
+                    -- Positional entry: { 1, 2, 3 }. store() never writes these, but
+                    -- dropping them silently would corrupt a hand-written config.
+                    local ok, value = readValue();
+                    if ok then
+                        arrayIndex = arrayIndex + 1;
+                        t[arrayIndex] = value;
+                    end
+                end
+
+                skipSpace();
+                local sep = text:sub(pos, pos);
+                if sep == ';' or sep == ',' then pos = pos + 1 end
+            end
+            return t;
+        end
+
+        readValue = function ()
+            skipSpace();
+            local c = text:sub(pos, pos);
+            if c == '{' then
+                return true, readTable();
+            elseif c == '"' or c == "'" then
+                return true, readString();
+            elseif text:sub(pos, pos + 3) == 'true' then
+                pos = pos + 4; return true, true;
+            elseif text:sub(pos, pos + 4) == 'false' then
+                pos = pos + 5; return true, false;
+            elseif text:sub(pos, pos + 2) == 'nil' then
+                pos = pos + 3; return true, nil;
+            elseif text:sub(pos, pos + 14) == 'multiRefObjects' then
+                -- A table stored once and pointed at from several places. Resolving it
+                -- to the same table preserves the sharing, which matters if anything
+                -- later writes through one of those references.
+                local idx = text:match('^multiRefObjects%s*%[%s*(%d+)%s*%]', pos);
+                if idx then
+                    local whole = text:match('^multiRefObjects%s*%[%s*%d+%s*%]', pos);
+                    pos = pos + #whole;
+                    local n = tonumber(idx);
+                    shared[n] = shared[n] or {};
+                    return true, shared[n];
+                end
+                skipUnknown();
+                return false, nil;
+            else
+                local num = text:match('^%-?%d+%.?%d*[eE]?[%-+]?%d*', pos);
+                if num and num ~= '' then
+                    pos = pos + #num;
+                    return true, tonumber(num);
+                end
+            end
+            skipUnknown();
+            return false, nil;
+        end
+
+        -- store() writes the shared tables first, as `multiRefObjects[i][k] = v;`
+        -- statements at top level, then the objects that reference them. Fill those in
+        -- before parsing the object, so the references resolve to the same tables.
+        local fillFrom = text:find('} -- multiRefObjects', 1, true);
+        if fillFrom then
+            local savedPos = pos;
+            pos = fillFrom + 20;
+            while true do
+                local at = text:find('multiRefObjects%s*%[', pos);
+                if not at then break end
+                local idx, after = text:match('^multiRefObjects%s*%[%s*(%d+)%s*%]()', at);
+                if not idx or text:sub(after, after) ~= '[' then break end
+                pos = after + 1;
+                skipSpace();
+                local key;
+                local kc = text:sub(pos, pos);
+                if kc == '"' or kc == "'" then
+                    key = readString();
+                else
+                    local raw = text:match('^[^%]]*', pos) or '';
+                    pos = pos + #raw;
+                    key = tonumber(raw) or raw;
+                end
+                skipSpace();
+                if text:sub(pos, pos) == ']' then pos = pos + 1 end
+                skipSpace();
+                if text:sub(pos, pos) ~= '=' then break end
+                pos = pos + 1;
+                local ok, value = readValue();
+                local n = tonumber(idx);
+                shared[n] = shared[n] or {};
+                if ok and key ~= nil then shared[n][key] = value end
+                skipSpace();
+                if text:sub(pos, pos) == ';' then pos = pos + 1 end
+            end
+            pos = savedPos;
+        end
+
+        -- store() ends with `return objN`, and the objects are declared as
+        -- `local objN = { ... }`. Find the one the file actually returns.
+        local returned = text:match('return%s+([%w_]+)%s*$')
+            or text:match('return%s+([%w_]+)');
+        if returned then
+            local declaration = text:find('local%s+' .. returned .. '%s*=%s*{');
+            if declaration then
+                pos = text:find('{', declaration, true);
+                return (readTable());
+            end
+        end
+
+        -- No recognisable preamble: fall back to the first table in the file.
+        local brace = text:find('{', 1, true);
+        if not brace then return nil end
+        pos = brace;
+        return (readTable());
+    end;
 }
 
 -- Private methods
@@ -538,21 +828,11 @@ writers = {
         end;
     end;
 	["function"] = function (file, item)
-        -- Does only work for "normal" functions, not those
-        -- with upvalues or c functions
-        local dInfo = debug.getinfo(item, "uS");
-        if dInfo.nups > 0 then
-            file:write("nil --[[functions with upvalue not supported]]");
-        elseif dInfo.what ~= "Lua" then
-            file:write("nil --[[non-lua function not supported]]");
-        else
-            local r, s = pcall(string.dump,item);
-            if r then
-                file:write(string.format("loadstring(%q)", s));
-            else
-                file:write("nil --[[function could not be dumped]]");
-            end
-        end
+        -- Functions used to be dumped as loadstring("<bytecode>") and revived on
+        -- load. B42.20 removed loadstring, so nothing could read that back -- writing
+        -- it would only produce a config the loader has to skip over. Nil is the
+        -- honest answer. Nothing in this mod's config stores functions.
+        file:write("nil --[[functions cannot be serialised since B42.20]]");
     end;
 	["thread"] = function (file, item)
         file:write("nil --[[thread]]\r\n");
