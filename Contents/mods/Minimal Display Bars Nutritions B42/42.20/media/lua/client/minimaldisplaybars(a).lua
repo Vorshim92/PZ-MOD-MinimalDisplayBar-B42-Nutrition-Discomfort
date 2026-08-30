@@ -1373,6 +1373,9 @@ local PRESETS = {
 -- Custom Functions
 
 MinimalDisplayBars.displayBars = {} -- This should store all the display bars as they are created.
+-- The menu box is deliberately kept out of displayBars (the reset/resize/toggle loops all
+-- skip it), so it needs its own reference or nothing can reach it at all.
+MinimalDisplayBars.menuBars = {}
 
 --fix vanilla bug stat == nan
 
@@ -3099,7 +3102,24 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             return
             end
         )
-        
+
+        -- Temporary: dumps the UI state to console.txt so a player who hits the disappearing
+        -- bars can send us what actually happened instead of a description. Reads and prints
+        -- only. Remove together with mdbdiagnostics.lua once the cause is known.
+        if MDBDiagnostics then
+            contextMenu:addOption(
+                "MDB: log diagnostics to console.txt",
+                generic_bar,
+                function(generic_bar)
+                    MDBDiagnostics.snapshot("manual")
+                    if getPlayer() then
+                        getPlayer():Say("MDB diagnostics written to console.txt")
+                    end
+                    return
+                end
+            )
+        end
+
     else
     
     -- === Display Bars ===
@@ -3306,6 +3326,7 @@ local function OnLocalPlayerDisconnect()
 
     -- 3. Clear all state tables
     MinimalDisplayBars.displayBars = {}
+    MinimalDisplayBars.menuBars = {}
     MinimalDisplayBars.configTables = {}
     MinimalDisplayBars.configFileLocations = {}
     playerIndices = {}
@@ -3504,6 +3525,7 @@ local function createUiFor(playerIndex, isoPlayer)
         nil)
     bar1:initialise()
     bar1:addToUIManager()
+    MinimalDisplayBars.menuBars[playerIndex] = bar1
     
     local idName2 = "hp"
     local bar2 = ISGenericMiniDisplayBar:new(
