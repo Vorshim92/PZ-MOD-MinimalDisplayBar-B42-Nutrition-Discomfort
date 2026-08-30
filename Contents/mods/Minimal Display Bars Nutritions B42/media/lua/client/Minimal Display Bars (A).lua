@@ -2890,7 +2890,8 @@ local function OnLocalPlayerDisconnect()
     end
 
     -- 2. Remove all display bars from UIManager
-    for playerIdx = 1, 4 do
+    -- displayBars is keyed by the 0-based playerIndex that OnCreatePlayer hands to createUiFor.
+    for playerIdx = 0, 3 do
         if MinimalDisplayBars.displayBars[playerIdx] then
             for _, bar in pairs(MinimalDisplayBars.displayBars[playerIdx]) do
                 if bar then
@@ -2915,7 +2916,11 @@ end
 -- OnPlayerDeath fires when a local player dies (receives isoPlayer)
 local function OnLocalPlayerDeath(isoPlayer)
     if isoPlayer and isoPlayer:isLocalPlayer() then
-        local playerIdx = isoPlayer:getPlayerNum() + 1
+        -- displayBars is keyed by the 0-based playerIndex that OnCreatePlayer hands to
+        -- createUiFor; playerIndices holds the 1-based coopNum. Mixing the two up meant the
+        -- dead character's bars were never found here and stayed in UIManager, hidden.
+        local playerIdx = isoPlayer:getPlayerNum()
+        local coopNum = playerIdx + 1
 
         -- 1. Remove this player's bars from UIManager
         if MinimalDisplayBars.displayBars[playerIdx] then
@@ -2937,7 +2942,7 @@ local function OnLocalPlayerDeath(isoPlayer)
 
         -- 2. Remove from playerIndices
         for k, v in pairs(playerIndices) do
-            if playerIndices[k] == playerIdx then
+            if playerIndices[k] == coopNum then
                 table.remove(playerIndices, k)
                 break
             end

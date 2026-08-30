@@ -3103,23 +3103,6 @@ MinimalDisplayBars.showContextMenu = function(generic_bar, dx, dy)
             end
         )
 
-        -- Temporary: dumps the UI state to console.txt so a player who hits the disappearing
-        -- bars can send us what actually happened instead of a description. Reads and prints
-        -- only. Remove together with mdbdiagnostics.lua once the cause is known.
-        if MDBDiagnostics then
-            contextMenu:addOption(
-                "MDB: log diagnostics to console.txt",
-                generic_bar,
-                function(generic_bar)
-                    MDBDiagnostics.snapshot("manual")
-                    if getPlayer() then
-                        getPlayer():Say("MDB diagnostics written to console.txt")
-                    end
-                    return
-                end
-            )
-        end
-
     else
     
     -- === Display Bars ===
@@ -3298,6 +3281,39 @@ local function OnBootGame()
     --numOfLocalClients = 0
 end
 
+-- Removes from UIManager everything createUiFor built for one player: the display bars, the
+-- move-together rectangle they may share as parent, and the menu box. Idempotent, and safe on
+-- elements UIManager no longer holds (RemoveElement just queues a list removal).
+--
+-- playerIndex is the 0-based index OnCreatePlayer hands to createUiFor -- the key of both
+-- displayBars and menuBars. playerIndices, by contrast, stores the 1-based coopNum. The two used
+-- to be mixed up here, so a dead character's bars were never removed: they stayed in UIManager,
+-- hidden, answering the same tostring() as the respawned character's bars, and the next ESC
+-- (ISUIHandler.setVisibleAllUI) restored the dead twins instead of the live ones.
+local function removeUiFor(playerIndex)
+    local bars = MinimalDisplayBars.displayBars[playerIndex]
+    if bars then
+        for _, bar in pairs(bars) do
+            if bar then
+                -- Remove parent panel first
+                if bar.parent then
+                    bar.parent:removeFromUIManager()
+                    bar.parent = nil
+                end
+                -- Remove the bar itself
+                bar:removeFromUIManager()
+            end
+        end
+        MinimalDisplayBars.displayBars[playerIndex] = nil
+    end
+
+    local menu = MinimalDisplayBars.menuBars[playerIndex]
+    if menu then
+        menu:removeFromUIManager()
+        MinimalDisplayBars.menuBars[playerIndex] = nil
+    end
+end
+
 -- added for split-screen support
 -- OnDisconnect fires when disconnected from server (all local players exit)
 local function OnLocalPlayerDisconnect()
@@ -3307,21 +3323,9 @@ local function OnLocalPlayerDisconnect()
         MinimalDisplayBars.displayBarPropertiesPanel = nil
     end
 
-    -- 2. Remove all display bars from UIManager
-    for playerIdx = 1, 4 do
-        if MinimalDisplayBars.displayBars[playerIdx] then
-            for _, bar in pairs(MinimalDisplayBars.displayBars[playerIdx]) do
-                if bar then
-                    -- Remove parent panel first
-                    if bar.parent then
-                        bar.parent:removeFromUIManager()
-                        bar.parent = nil
-                    end
-                    -- Remove the bar itself
-                    bar:removeFromUIManager()
-                end
-            end
-        end
+    -- 2. Remove all display bars from UIManager (0-based, see removeUiFor)
+    for playerIndex = 0, 3 do
+        removeUiFor(playerIndex)
     end
 
     -- 3. Clear all state tables
@@ -3336,21 +3340,11 @@ end
 -- OnPlayerDeath fires when a local player dies (receives isoPlayer)
 local function OnLocalPlayerDeath(isoPlayer)
     if isoPlayer and isoPlayer:isLocalPlayer() then
-        local playerIdx = isoPlayer:getPlayerNum() + 1
+        local playerIndex = isoPlayer:getPlayerNum()
+        local coopNum = playerIndex + 1
 
-        -- 1. Remove this player's bars from UIManager
-        if MinimalDisplayBars.displayBars[playerIdx] then
-            for _, bar in pairs(MinimalDisplayBars.displayBars[playerIdx]) do
-                if bar then
-                    if bar.parent then
-                        bar.parent:removeFromUIManager()
-                        bar.parent = nil
-                    end
-                    bar:removeFromUIManager()
-                end
-            end
-            MinimalDisplayBars.displayBars[playerIdx] = nil
-        end
+        -- 1. Remove this player's bars and menu box from UIManager
+        removeUiFor(playerIndex)
 
         -- NOTE: Do NOT clear configTables/configFileLocations here!
         -- The render loop may still access them before bars are fully removed.
@@ -3358,7 +3352,7 @@ local function OnLocalPlayerDeath(isoPlayer)
 
         -- 2. Remove from playerIndices
         for k, v in pairs(playerIndices) do
-            if playerIndices[k] == playerIdx then
+            if v == coopNum then
                 table.remove(playerIndices, k)
                 break
             end
@@ -3395,7 +3389,12 @@ local function createUiFor(playerIndex, isoPlayer)
     -- Make sure this is a local player only.
     if not isoPlayer:isLocalPlayer() then return end
 
-    
+    -- Never let two generations of bars coexist for the same index. A leftover set (the
+    -- character that just died, or a previous session's if the Lua state survived) answers the
+    -- same tostring() as the new one, and ISUIHandler.setVisibleAllUI would then restore the
+    -- leftover instead of the live bar on the next ESC.
+    removeUiFor(playerIndex)
+
     -- Split-screen support
     local xOffset = getPlayerScreenLeft(playerIndex)
     local yOffset = getPlayerScreenTop(playerIndex)
